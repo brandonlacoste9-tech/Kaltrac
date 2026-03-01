@@ -55,6 +55,20 @@ export const translations = {
     barcodeScanError: "Erreur de numérisation. Vérifiez l'image.",
     uploadReceipt: "Ou téléchargez une image du code-barres",
     
+    // Analytics
+    analytics: "Analyses",
+    today: "Aujourd'hui",
+    week: "Semaine",
+    month: "Mois",
+    avgDaily: "Moyenne quotidienne",
+    weekTotal: "Total de la semaine",
+    goalMet: "Objectif atteint",
+    weeklyAvg: "Moyennes hebdomadaires",
+    monthTotal: "Total du mois",
+    goalsMet: "Objectifs atteints",
+    weeklyOverview: "Aperçu hebdomadaire",
+    monthlyOverview: "Aperçu mensuel",
+    
     // Navigation
     home: "Accueil",
     history: "Historique",
@@ -170,6 +184,20 @@ export const translations = {
     nutritionInfo: "Nutrition Information",
     barcodeScanError: "Scan error. Check the image.",
     uploadReceipt: "Or upload a barcode image",
+    
+    // Analytics
+    analytics: "Analytics",
+    today: "Today",
+    week: "Week",
+    month: "Month",
+    avgDaily: "Avg Daily",
+    weekTotal: "Week Total",
+    goalMet: "Goal Met",
+    weeklyAvg: "Weekly Averages",
+    monthTotal: "Month Total",
+    goalsMet: "Goals Met",
+    weeklyOverview: "Weekly Overview",
+    monthlyOverview: "Monthly Overview",
     
     // Navigation
     home: "Home",

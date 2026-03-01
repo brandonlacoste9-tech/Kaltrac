@@ -8,6 +8,7 @@ import { PhotoUpload } from "./components/PhotoUpload";
 import { AnalysisResult } from "./components/AnalysisResult";
 import { MealLog } from "./components/MealLog";
 import BarcodeScanner from "./components/BarcodeScanner";
+import { AnalyticsDashboard } from "./components/AnalyticsDashboard";
 import "./styles/app.css";
 
 export default function App() {
@@ -21,13 +22,17 @@ export default function App() {
     removeFromLog,
     getTotalCalories,
     getCaloriePercentage,
+    getTodayLog,
+    getWeeklyData,
+    getMonthlyData,
     DAILY_GOAL,
   } = useCalorieTracker();
 
   const [image, setImage] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState(null);
-  const [mode, setMode] = useState("photo"); // "photo" or "barcode"
+  const [mode, setMode] = useState("photo"); // "photo", "barcode", or "analytics"
+  const [appMode, setAppMode] = useState("tracker"); // "tracker" or "analytics"
 
   const handleImageChange = useCallback((newImage) => {
     setImage(newImage);
@@ -113,59 +118,120 @@ export default function App() {
       <div className="divider" />
 
       {/* Mode toggle */}
-      <div style={styles.modeToggle}>
+      <div style={styles.appModeToggle}>
         <button
-          onClick={() => setMode("photo")}
+          onClick={() => setAppMode("tracker")}
           style={{
-            ...styles.modeButton,
-            ...(mode === "photo" ? styles.modeButtonActive : {})
+            ...styles.appModeButton,
+            ...(appMode === "tracker" ? styles.appModeButtonActive : {})
           }}
         >
-          {t('photoMode')}
+          {t('home') || 'Tracker'}
         </button>
         <button
-          onClick={() => setMode("barcode")}
+          onClick={() => setAppMode("analytics")}
           style={{
-            ...styles.modeButton,
-            ...(mode === "barcode" ? styles.modeButtonActive : {})
+            ...styles.appModeButton,
+            ...(appMode === "analytics" ? styles.appModeButtonActive : {})
           }}
         >
-          {t('scanMode')}
+          {t('analytics') || 'Analytics'}
         </button>
       </div>
 
-      {mode === "photo" ? (
+      {appMode === "tracker" ? (
         <>
-          <PhotoUpload
-            image={image}
-            onImageChange={handleImageChange}
-            analyzing={analyzing}
-            onAnalyze={handleAnalyze}
-            onImageRemove={handleImageRemove}
-            language={language}
-          />
+          {/* Tracker Mode */}
+          <div style={styles.modeToggle}>
+            <button
+              onClick={() => setMode("photo")}
+              style={{
+                ...styles.modeButton,
+                ...(mode === "photo" ? styles.modeButtonActive : {})
+              }}
+            >
+              {t('photoMode')}
+            </button>
+            <button
+              onClick={() => setMode("barcode")}
+              style={{
+                ...styles.modeButton,
+                ...(mode === "barcode" ? styles.modeButtonActive : {})
+              }}
+            >
+              {t('scanMode')}
+            </button>
+          </div>
 
-          {error && <div className="error-msg">⚠️ {error}</div>}
+          {mode === "photo" ? (
+            <>
+              <PhotoUpload
+                image={image}
+                onImageChange={handleImageChange}
+                analyzing={analyzing}
+                onAnalyze={handleAnalyze}
+                onImageRemove={handleImageRemove}
+                language={language}
+              />
 
-          <AnalysisResult result={result} onAddToLog={handleAddToLog} language={language} />
+              {error && <div className="error-msg">⚠️ {error}</div>}
+
+              <AnalysisResult result={result} onAddToLog={handleAddToLog} language={language} />
+            </>
+          ) : (
+            <>
+              {error && <div className="error-msg">⚠️ {error}</div>}
+              <BarcodeScanner
+                language={language}
+                t={t}
+                onProductSelect={handleBarcodeProductSelect}
+              />
+            </>
+          )}
+
+          <MealLog log={getTodayLog()} onRemoveItem={removeFromLog} language={language} />
         </>
       ) : (
         <>
-          {error && <div className="error-msg">⚠️ {error}</div>}
-          <BarcodeScanner
-            language={language}
+          {/* Analytics Mode */}
+          <AnalyticsDashboard
+            log={getTodayLog()}
+            weeklyData={getWeeklyData()}
+            monthlyData={getMonthlyData()}
+            dailyGoal={DAILY_GOAL}
             t={t}
-            onProductSelect={handleBarcodeProductSelect}
           />
         </>
       )}
-
-      <MealLog log={log} onRemoveItem={removeFromLog} language={language} />
     </div>
   );
 }
 
 const styles = {
+  appModeToggle: {
+    display: 'flex',
+    gap: '0',
+    justifyContent: 'center',
+    marginBottom: '20px',
+    padding: '0 20px',
+    borderBottom: '2px solid #333'
+  },
+  appModeButton: {
+    padding: '12px 24px',
+    backgroundColor: 'transparent',
+    color: '#999',
+    border: 'none',
+    borderBottom: '3px solid transparent',
+    cursor: 'pointer',
+    fontFamily: 'Fraunces, serif',
+    fontWeight: '600',
+    fontSize: '14px',
+    transition: 'all 0.3s ease'
+  },
+  appModeButtonActive: {
+    color: '#ffd700',
+    borderBottomColor: '#ffd700'
+  },
   modeToggle: {
     display: 'flex',
     gap: '10px',

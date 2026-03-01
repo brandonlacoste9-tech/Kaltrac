@@ -9,45 +9,35 @@ export function CalorieRing({ totalCals, percentage, dailyGoal, language }) {
   const strokeDashoffset = CIRCUMFERENCE - (percentage / 100) * CIRCUMFERENCE;
 
   return (
-    <div className="ring-section">
-      <div className="ring-wrap">
-        <svg className="ring-svg" width="120" height="120" viewBox="0 0 120 120">
-          <circle className="ring-bg" cx="60" cy="60" r={RADIUS} fill="none" strokeWidth="8" />
-          <circle
-            className="ring-fill"
-            cx="60"
-            cy="60"
-            r={RADIUS}
-            fill="none"
-            strokeWidth="8"
-            strokeDasharray={CIRCUMFERENCE}
-            strokeDashoffset={strokeDashoffset}
-          />
-        </svg>
-        <div className="ring-text">
-          <div className="ring-cal">{totalCals}</div>
-          <div className="ring-label">{t("kcalEaten")}</div>
-        </div>
-      </div>
-
-      <div className="stats">
-        <div className="stat-row">
-          <span className="stat-label">{t("goal")}</span>
-          <span className="stat-val">
-            {dailyGoal} {t("kcal")}
-          </span>
-        </div>
-        <div className="stat-row">
-          <span className="stat-label">{t("eaten")}</span>
-          <span className="stat-val accent">{totalCals} {t("kcal")}</span>
-        </div>
-        <div className="stat-row">
-          <span className="stat-label">{t("remaining")}</span>
-          <span className={`stat-val ${remaining < 0 ? "red" : "green"}`}>
-            {remaining < 0 ? Math.abs(remaining) : remaining} {t("kcal")}
-          </span>
-        </div>
-      </div>
-    </div>
+    <svg className="ring-svg" width="140" height="140" viewBox="0 0 120 120">
+      <defs>
+        <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
+          <stop offset="100%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      <circle className="ring-bg" cx="60" cy="60" r={RADIUS} fill="none" strokeWidth="10" />
+      <circle
+        className="ring-fill"
+        cx="60"
+        cy="60"
+        r={RADIUS}
+        fill="none"
+        strokeWidth="10"
+        stroke="url(#ringGradient)"
+        strokeDasharray={CIRCUMFERENCE}
+        strokeDashoffset={strokeDashoffset}
+        filter="url(#glow)"
+      />
+      <text x="60" y="60" textAnchor="middle" dy="-12" className="ring-value">{Math.round(percentage)}%</text>
+      <text x="60" y="60" textAnchor="middle" dy="16" className="ring-label">{Math.round(totalCals)} kcal</text>
+    </svg>
   );
 }

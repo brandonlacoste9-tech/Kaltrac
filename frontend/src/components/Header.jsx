@@ -5,24 +5,22 @@ export function Header({ language, onLanguageChange }) {
 
   return (
     <div className="header">
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-        <div>
-          <div className="logo">
-            Kal<span>Trac</span>
-          </div>
-          <div className="subtitle">{t("tagline")}</div>
-        </div>
+      <h2 className="header-title">Let's track your healthy day</h2>
+      <p className="header-subtitle">Monitor calories, macros, workouts & hydration</p>
+      <div style={{ display: "flex", gap: "8px", marginTop: "16px" }}>
         <button
-          className={`lang-btn ${language === "en" ? "active" : ""}`}
+          className={`mode-btn ${language === "en" ? "active" : ""}`}
           onClick={() => onLanguageChange("en")}
+          style={{ flex: "none", padding: "8px 16px", fontSize: "12px" }}
         >
-          EN
+          🇺🇸 English
         </button>
         <button
-          className={`lang-btn ${language === "fr" ? "active" : ""}`}
+          className={`mode-btn ${language === "fr" ? "active" : ""}`}
           onClick={() => onLanguageChange("fr")}
+          style={{ flex: "none", padding: "8px 16px", fontSize: "12px" }}
         >
-          FR
+          🇫🇷 Français
         </button>
       </div>
     </div>

@@ -23,6 +23,7 @@ export default function App() {
   const [language, setLanguage] = useState("en");
   const { t } = useTranslation(language);
   
+  // Auth state
   const [user, setUser] = useState(null);
   const [userSettings, setUserSettings] = useState({
     daily_calorie_goal: 2000,
@@ -32,9 +33,11 @@ export default function App() {
     dietary_restrictions: []
   });
 
+  // UI state
   const [navMode, setNavMode] = useState("tracker");
   const [mode, setMode] = useState("photo");
 
+  // Calorie tracker state
   const {
     result,
     setResult,
@@ -47,10 +50,12 @@ export default function App() {
     getMonthlyData,
   } = useCalorieTracker();
 
+  // Food analysis state
   const [image, setImage] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState(null);
 
+  // Check auth on mount
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     const userData = localStorage.getItem('user');
@@ -81,6 +86,7 @@ export default function App() {
     setNavMode('tracker');
   };
 
+  // Photo analysis handlers
   const handleImageChange = useCallback((newImage) => {
     setImage(newImage);
     setError(null);
@@ -100,7 +106,6 @@ export default function App() {
     try {
       const base64Image = image.split(",")[1];
       const foodData = await analyzeFood(base64Image);
-
       setResult({
         name: foodData.name,
         calories: foodData.calories,
@@ -151,193 +156,194 @@ export default function App() {
 
   return (
     <div className="app">
-      <div className="bg-orb" style={{ width: 300, height: 300, background: "#e8a045", top: -100, right: -100 }} />
-      <div className="bg-orb" style={{ width: 200, height: 200, background: "#7ec98a", bottom: 200, left: -80 }} />
-
-      <nav style={styles.navbar}>
-        <div style={styles.navLeft}>
-          <h1 style={styles.logo}>KalTrac</h1>
+      {/* Navigation Bar */}
+      <nav className="navbar">
+        <div className="nav-left">
+          <h1 className="logo">KalTrac</h1>
         </div>
-        <div style={styles.navCenter}>
-          <button onClick={() => setNavMode('tracker')} style={{...styles.navBtn, ...(navMode === 'tracker' ? styles.navBtnActive : {})}}>Track</button>
-          <button onClick={() => setNavMode('analytics')} style={{...styles.navBtn, ...(navMode === 'analytics' ? styles.navBtnActive : {})}}>Analytics</button>
-          <button onClick={() => setNavMode('workouts')} style={{...styles.navBtn, ...(navMode === 'workouts' ? styles.navBtnActive : {})}}>Workouts</button>
-          <button onClick={() => setNavMode('water')} style={{...styles.navBtn, ...(navMode === 'water' ? styles.navBtnActive : {})}}>Water</button>
-          <button onClick={() => setNavMode('planning')} style={{...styles.navBtn, ...(navMode === 'planning' ? styles.navBtnActive : {})}}>Plan</button>
-          <button onClick={() => setNavMode('export')} style={{...styles.navBtn, ...(navMode === 'export' ? styles.navBtnActive : {})}}>Export</button>
+        <div className="nav-center">
+          <button 
+            onClick={() => setNavMode('tracker')} 
+            className={`nav-btn ${navMode === 'tracker' ? 'active' : ''}`}
+          >
+            📊 Track
+          </button>
+          <button 
+            onClick={() => setNavMode('analytics')} 
+            className={`nav-btn ${navMode === 'analytics' ? 'active' : ''}`}
+          >
+            📈 Analytics
+          </button>
+          <button 
+            onClick={() => setNavMode('workouts')} 
+            className={`nav-btn ${navMode === 'workouts' ? 'active' : ''}`}
+          >
+            💪 Workouts
+          </button>
+          <button 
+            onClick={() => setNavMode('water')} 
+            className={`nav-btn ${navMode === 'water' ? 'active' : ''}`}
+          >
+            💧 Water
+          </button>
+          <button 
+            onClick={() => setNavMode('planning')} 
+            className={`nav-btn ${navMode === 'planning' ? 'active' : ''}`}
+          >
+            🍽️ Plans
+          </button>
+          <button 
+            onClick={() => setNavMode('export')} 
+            className={`nav-btn ${navMode === 'export' ? 'active' : ''}`}
+          >
+            📥 Export
+          </button>
         </div>
-        <div style={styles.navRight}>
-          <button onClick={() => setNavMode('settings')} style={styles.settingsBtn}>⚙️</button>
-          <button onClick={handleLogout} style={styles.logoutBtn}>Logout</button>
-          <div style={styles.userInfo}>{user.name}</div>
+        <div className="nav-right">
+          <button onClick={() => setNavMode('settings')} className="settings-btn">⚙️</button>
+          <button onClick={handleLogout} className="logout-btn">Logout</button>
+          <div className="user-info">{user.name}</div>
         </div>
       </nav>
 
-      <Header language={language} onLanguageChange={setLanguage} />
+      {/* Main Content */}
+      <div className="content">
+        <Header language={language} onLanguageChange={setLanguage} />
 
-      {navMode === 'tracker' && (
-        <>
-          <CalorieRing
-            totalCals={totalCals}
-            percentage={percentage}
-            dailyGoal={userSettings.daily_calorie_goal}
-            language={language}
-          />
+        {navMode === 'tracker' && (
+          <>
+            {/* Calorie Ring Card */}
+            <div className="ring-card">
+              <div className="ring-section">
+                <div className="ring-wrap">
+                  <CalorieRing
+                    totalCals={totalCals}
+                    percentage={percentage}
+                    dailyGoal={userSettings.daily_calorie_goal}
+                    language={language}
+                  />
+                </div>
+                <div className="ring-stats">
+                  <div className="stat">
+                    <span className="stat-value">{Math.round(totalCals)}</span>
+                    <span className="stat-label">Eaten</span>
+                  </div>
+                  <div className="stat">
+                    <span className="stat-value">{Math.round(userSettings.daily_calorie_goal - totalCals)}</span>
+                    <span className="stat-label">Left</span>
+                  </div>
+                  <div className="stat">
+                    <span className="stat-value">{Math.round(percentage)}%</span>
+                    <span className="stat-label">Done</span>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-          <div className="divider" />
+            {/* Mode Toggle */}
+            <div className="mode-toggle">
+              <button 
+                onClick={() => setMode("photo")} 
+                className={`mode-btn ${mode === "photo" ? "active" : ""}`}
+              >
+                📷 Photo Mode
+              </button>
+              <button 
+                onClick={() => setMode("barcode")} 
+                className={`mode-btn ${mode === "barcode" ? "active" : ""}`}
+              >
+                📱 Barcode Scan
+              </button>
+            </div>
 
-          <div style={styles.modeToggle}>
-            <button onClick={() => setMode("photo")} style={{...styles.modeButton, ...(mode === "photo" ? styles.modeButtonActive : {})}}>
-              📷 Photo
-            </button>
-            <button onClick={() => setMode("barcode")} style={{...styles.modeButton, ...(mode === "barcode" ? styles.modeButtonActive : {})}}>
-              📱 Barcode
-            </button>
+            {/* Photo or Barcode Input */}
+            <div className="card">
+              {mode === "photo" ? (
+                <>
+                  <PhotoUpload
+                    image={image}
+                    onImageChange={handleImageChange}
+                    analyzing={analyzing}
+                    onAnalyze={handleAnalyze}
+                    onImageRemove={handleImageRemove}
+                    language={language}
+                  />
+                  {error && <div className="error-msg">⚠️ {error}</div>}
+                  <AnalysisResult result={result} onAddToLog={handleAddToLog} language={language} />
+                </>
+              ) : (
+                <>
+                  {error && <div className="error-msg">⚠️ {error}</div>}
+                  <BarcodeScanner
+                    language={language}
+                    t={t}
+                    onProductSelect={handleBarcodeProductSelect}
+                  />
+                </>
+              )}
+            </div>
+
+            {/* Favorites */}
+            <Favorites t={t} onSelectFavorite={handleFavoriteSelect} />
+
+            {/* Meal Log */}
+            <div className="card">
+              <h3 className="card-title">📝 Today's Meals</h3>
+              <MealLog log={getTodayLog()} onRemoveItem={removeFromLog} language={language} />
+            </div>
+          </>
+        )}
+
+        {navMode === 'analytics' && (
+          <div className="card">
+            <AnalyticsDashboard
+              log={getTodayLog()}
+              weeklyData={getWeeklyData()}
+              monthlyData={getMonthlyData()}
+              dailyGoal={userSettings.daily_calorie_goal}
+              t={t}
+            />
           </div>
+        )}
 
-          {mode === "photo" ? (
-            <>
-              <PhotoUpload
-                image={image}
-                onImageChange={handleImageChange}
-                analyzing={analyzing}
-                onAnalyze={handleAnalyze}
-                onImageRemove={handleImageRemove}
-                language={language}
-              />
-              {error && <div className="error-msg">⚠️ {error}</div>}
-              <AnalysisResult result={result} onAddToLog={handleAddToLog} language={language} />
-            </>
-          ) : (
-            <>
-              {error && <div className="error-msg">⚠️ {error}</div>}
-              <BarcodeScanner language={language} t={t} onProductSelect={handleBarcodeProductSelect} />
-            </>
-          )}
+        {navMode === 'workouts' && (
+          <div className="card">
+            <WorkoutLogger t={t} />
+          </div>
+        )}
 
-          <Favorites t={t} onSelectFavorite={handleFavoriteSelect} />
-          <MealLog log={getTodayLog()} onRemoveItem={removeFromLog} language={language} />
-        </>
-      )}
+        {navMode === 'water' && (
+          <div className="card">
+            <WaterTracker t={t} />
+          </div>
+        )}
 
-      {navMode === 'analytics' && (
-        <AnalyticsDashboard
-          log={getTodayLog()}
-          weeklyData={getWeeklyData()}
-          monthlyData={getMonthlyData()}
-          dailyGoal={userSettings.daily_calorie_goal}
-          t={t}
-        />
-      )}
+        {navMode === 'planning' && (
+          <div className="card">
+            <MealPlanning 
+              dailyGoal={userSettings.daily_calorie_goal} 
+              dietaryRestrictions={userSettings.dietary_restrictions} 
+              t={t} 
+            />
+          </div>
+        )}
 
-      {navMode === 'workouts' && <WorkoutLogger t={t} />}
-      {navMode === 'water' && <WaterTracker t={t} />}
-      {navMode === 'planning' && <MealPlanning dailyGoal={userSettings.daily_calorie_goal} dietaryRestrictions={userSettings.dietary_restrictions} t={t} />}
-      {navMode === 'export' && <ExportData t={t} weekData={getWeeklyData()} dailyGoal={userSettings.daily_calorie_goal} />}
+        {navMode === 'export' && (
+          <div className="card">
+            <ExportData t={t} weekData={getWeeklyData()} dailyGoal={userSettings.daily_calorie_goal} />
+          </div>
+        )}
 
-      {navMode === 'settings' && (
-        <Settings language={language} t={t} onClose={() => setNavMode('tracker')} />
-      )}
+        {navMode === 'settings' && (
+          <div className="card">
+            <Settings 
+              language={language} 
+              t={t} 
+              onClose={() => setNavMode('tracker')} 
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
-
-const styles = {
-  navbar: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '16px 24px',
-    backgroundColor: '#0a0a0a',
-    borderBottom: '1px solid #333',
-    position: 'sticky',
-    top: 0,
-    zIndex: 100,
-    flexWrap: 'wrap',
-    gap: '16px'
-  },
-  navLeft: {
-    display: 'flex',
-    alignItems: 'center'
-  },
-  logo: {
-    fontSize: '24px',
-    fontWeight: '700',
-    color: '#ffd700',
-    margin: 0,
-    fontFamily: 'Fraunces, serif'
-  },
-  navCenter: {
-    display: 'flex',
-    gap: '8px',
-    flex: 1,
-    justifyContent: 'center',
-    flexWrap: 'wrap'
-  },
-  navBtn: {
-    padding: '8px 12px',
-    backgroundColor: 'transparent',
-    color: '#999',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontSize: '12px',
-    fontWeight: '600',
-    transition: 'all 0.2s',
-    fontFamily: 'Fraunces, serif'
-  },
-  navBtnActive: {
-    backgroundColor: '#ffd700',
-    color: '#000'
-  },
-  navRight: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px'
-  },
-  settingsBtn: {
-    background: 'none',
-    border: 'none',
-    fontSize: '18px',
-    cursor: 'pointer',
-    padding: '4px'
-  },
-  logoutBtn: {
-    padding: '6px 12px',
-    backgroundColor: '#3d1f1f',
-    color: '#ff6b6b',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontSize: '11px',
-    fontWeight: '600'
-  },
-  userInfo: {
-    fontSize: '12px',
-    color: '#999'
-  },
-  modeToggle: {
-    display: 'flex',
-    gap: '10px',
-    justifyContent: 'center',
-    marginBottom: '30px',
-    padding: '0 20px'
-  },
-  modeButton: {
-    padding: '10px 20px',
-    backgroundColor: '#333',
-    color: '#999',
-    border: '2px solid #333',
-    borderRadius: '8px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    fontFamily: 'Fraunces, serif',
-    transition: 'all 0.3s ease',
-    fontSize: '14px'
-  },
-  modeButtonActive: {
-    backgroundColor: '#ffd700',
-    color: '#000',
-    borderColor: '#ffd700'
-  }
-};

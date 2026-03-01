@@ -1,0 +1,23 @@
+{
+  "name": "kaltrac-backend",
+  "version": "1.0.0",
+  "description": "KalTrac backend API with Neon PostgreSQL",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node src/server.js",
+    "start": "node src/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "pg": "^8.11.0",
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.1.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "helmet": "^7.1.0"
+  }
+}

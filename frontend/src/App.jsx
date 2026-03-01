@@ -7,6 +7,7 @@ import { CalorieRing } from "./components/CalorieRing";
 import { PhotoUpload } from "./components/PhotoUpload";
 import { AnalysisResult } from "./components/AnalysisResult";
 import { MealLog } from "./components/MealLog";
+import BarcodeScanner from "./components/BarcodeScanner";
 import "./styles/app.css";
 
 export default function App() {
@@ -26,6 +27,7 @@ export default function App() {
   const [image, setImage] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState(null);
+  const [mode, setMode] = useState("photo"); // "photo" or "barcode"
 
   const handleImageChange = useCallback((newImage) => {
     setImage(newImage);
@@ -76,6 +78,19 @@ export default function App() {
     }
   }, [result, addToLog, setResult]);
 
+  const handleBarcodeProductSelect = useCallback((productData) => {
+    addToLog({
+      name: productData.name,
+      calories: productData.calories,
+      protein: productData.protein,
+      carbs: productData.carbs,
+      fat: productData.fat,
+      note: `From barcode: ${productData.productData?.brand || 'Unknown'}`,
+      source: 'barcode'
+    });
+    setError(null);
+  }, [addToLog]);
+
   const totalCals = getTotalCalories();
   const percentage = getCaloriePercentage();
 
@@ -97,20 +112,82 @@ export default function App() {
 
       <div className="divider" />
 
-      <PhotoUpload
-        image={image}
-        onImageChange={handleImageChange}
-        analyzing={analyzing}
-        onAnalyze={handleAnalyze}
-        onImageRemove={handleImageRemove}
-        language={language}
-      />
+      {/* Mode toggle */}
+      <div style={styles.modeToggle}>
+        <button
+          onClick={() => setMode("photo")}
+          style={{
+            ...styles.modeButton,
+            ...(mode === "photo" ? styles.modeButtonActive : {})
+          }}
+        >
+          {t('photoMode')}
+        </button>
+        <button
+          onClick={() => setMode("barcode")}
+          style={{
+            ...styles.modeButton,
+            ...(mode === "barcode" ? styles.modeButtonActive : {})
+          }}
+        >
+          {t('scanMode')}
+        </button>
+      </div>
 
-      {error && <div className="error-msg">⚠️ {error}</div>}
+      {mode === "photo" ? (
+        <>
+          <PhotoUpload
+            image={image}
+            onImageChange={handleImageChange}
+            analyzing={analyzing}
+            onAnalyze={handleAnalyze}
+            onImageRemove={handleImageRemove}
+            language={language}
+          />
 
-      <AnalysisResult result={result} onAddToLog={handleAddToLog} language={language} />
+          {error && <div className="error-msg">⚠️ {error}</div>}
+
+          <AnalysisResult result={result} onAddToLog={handleAddToLog} language={language} />
+        </>
+      ) : (
+        <>
+          {error && <div className="error-msg">⚠️ {error}</div>}
+          <BarcodeScanner
+            language={language}
+            t={t}
+            onProductSelect={handleBarcodeProductSelect}
+          />
+        </>
+      )}
 
       <MealLog log={log} onRemoveItem={removeFromLog} language={language} />
     </div>
   );
 }
+
+const styles = {
+  modeToggle: {
+    display: 'flex',
+    gap: '10px',
+    justifyContent: 'center',
+    marginBottom: '30px',
+    padding: '0 20px'
+  },
+  modeButton: {
+    padding: '10px 20px',
+    backgroundColor: '#333',
+    color: '#999',
+    border: '2px solid #333',
+    borderRadius: '8px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    fontFamily: 'Fraunces, serif',
+    transition: 'all 0.3s ease',
+    fontSize: '14px'
+  },
+  modeButtonActive: {
+    backgroundColor: '#ffd700',
+    color: '#000',
+    borderColor: '#ffd700'
+  }
+};

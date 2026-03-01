@@ -39,11 +39,28 @@ export function LoginSignup({ onAuthSuccess }) {
     }
   };
 
+  const handleDemo = () => {
+    const demoUser = {
+      id: 'demo-user',
+      name: 'Demo User',
+      email: 'demo@kaltrac.app',
+      isDemo: true
+    };
+    localStorage.setItem('user', JSON.stringify(demoUser));
+    localStorage.setItem('isDemo', 'true');
+    onAuthSuccess(demoUser);
+  };
+
   return (
     <div style={styles.container}>
+      <div style={styles.background}></div>
+      
       <div style={styles.card}>
-        <h1 style={styles.title}>KalTrac</h1>
-        <p style={styles.subtitle}>AI-Powered Calorie Tracker</p>
+        <div style={styles.header}>
+          <h1 style={styles.title}>KalTrac</h1>
+          <p style={styles.subtitle}>AI-Powered Calorie Tracker</p>
+          <p style={styles.tagline}>Track calories, macros, workouts & hydration with AI</p>
+        </div>
 
         <div style={styles.tabs}>
           <button
@@ -81,7 +98,7 @@ export function LoginSignup({ onAuthSuccess }) {
           <input
             type="email"
             name="email"
-            placeholder="Email"
+            placeholder="Email Address"
             value={formData.email}
             onChange={handleChange}
             required
@@ -102,14 +119,33 @@ export function LoginSignup({ onAuthSuccess }) {
           <button
             type="submit"
             disabled={loading}
+            className="btn"
             style={{
-              ...styles.button,
+              width: '100%',
+              ...styles.submitButton,
               ...(loading ? styles.buttonDisabled : {})
             }}
           >
-            {loading ? 'Loading...' : mode === 'login' ? 'Login' : 'Sign Up'}
+            {loading ? 'Loading...' : mode === 'login' ? 'Login' : 'Create Account'}
           </button>
         </form>
+
+        <div style={styles.divider}>
+          <span>or try for free</span>
+        </div>
+
+        <button
+          onClick={handleDemo}
+          className="btn btn-accent"
+          style={{
+            width: '100%',
+            ...styles.demoButton
+          }}
+        >
+          🚀 Try Demo Mode
+        </button>
+
+        <p style={styles.disclaimer}>Demo mode uses local storage • No account needed • Full features included</p>
       </div>
     </div>
   );
@@ -121,89 +157,136 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: '100vh',
-    backgroundColor: '#0a0a0a',
-    fontFamily: 'Fraunces, serif'
+    backgroundColor: '#0f172a',
+    fontFamily: '"Plus Jakarta Sans", sans-serif',
+    position: 'relative',
+    overflow: 'hidden'
+  },
+  background: {
+    position: 'absolute',
+    width: '400px',
+    height: '400px',
+    background: 'radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%)',
+    borderRadius: '50%',
+    top: '-100px',
+    right: '-100px',
+    pointerEvents: 'none'
   },
   card: {
-    backgroundColor: '#1a1a1a',
-    border: '1px solid #333',
-    borderRadius: '12px',
-    padding: '40px',
+    background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%)',
+    border: '1px solid rgba(99, 102, 241, 0.3)',
+    borderRadius: '16px',
+    padding: '48px',
     width: '100%',
-    maxWidth: '400px'
+    maxWidth: '420px',
+    backdropFilter: 'blur(10px)',
+    boxShadow: `
+      0 20px 60px rgba(0, 0, 0, 0.4),
+      0 0 40px rgba(99, 102, 241, 0.1),
+      inset 0 0 30px rgba(99, 102, 241, 0.05)
+    `,
+    position: 'relative',
+    zIndex: 10
+  },
+  header: {
+    textAlign: 'center',
+    marginBottom: '32px'
   },
   title: {
-    fontSize: '32px',
+    fontSize: '36px',
     fontWeight: '700',
-    color: '#ffd700',
+    background: 'linear-gradient(135deg, #6366f1 0%, #10b981 100%)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
     marginBottom: '8px',
-    textAlign: 'center'
+    margin: 0
   },
   subtitle: {
-    fontSize: '14px',
-    color: '#999',
-    textAlign: 'center',
-    marginBottom: '30px'
+    fontSize: '16px',
+    color: '#cbd5e1',
+    marginBottom: '4px',
+    fontWeight: '500'
+  },
+  tagline: {
+    fontSize: '13px',
+    color: '#94a3b8'
   },
   tabs: {
     display: 'flex',
     gap: '0',
-    marginBottom: '30px',
-    borderBottom: '2px solid #333'
+    marginBottom: '28px',
+    borderBottom: '2px solid rgba(99, 102, 241, 0.2)'
   },
   tab: {
     flex: 1,
-    padding: '12px',
+    padding: '14px',
     backgroundColor: 'transparent',
-    color: '#999',
+    color: '#94a3b8',
     border: 'none',
     borderBottom: '3px solid transparent',
     cursor: 'pointer',
     fontWeight: '600',
     fontSize: '14px',
-    transition: 'all 0.3s ease'
+    transition: 'all 0.3s ease',
+    fontFamily: 'inherit'
   },
   tabActive: {
-    color: '#ffd700',
-    borderBottomColor: '#ffd700'
+    color: '#f1f5f9',
+    borderBottomColor: '#6366f1',
+    boxShadow: '0 2px 8px rgba(99, 102, 241, 0.2)'
   },
   form: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '16px'
+    gap: '14px',
+    marginBottom: '24px'
   },
   input: {
-    padding: '12px',
-    backgroundColor: '#0a0a0a',
-    border: '1px solid #333',
+    padding: '12px 16px',
+    backgroundColor: 'rgba(30, 41, 59, 0.6)',
+    border: '1px solid rgba(99, 102, 241, 0.2)',
     borderRadius: '8px',
-    color: '#fff',
+    color: '#f1f5f9',
     fontSize: '14px',
-    fontFamily: 'DM Mono, monospace',
-    outline: 'none'
+    fontFamily: 'inherit',
+    outline: 'none',
+    transition: 'all 0.2s ease',
+    boxShadow: 'inset 0 0 15px rgba(0, 0, 0, 0.2)'
   },
-  button: {
-    padding: '12px',
-    backgroundColor: '#ffd700',
-    color: '#000',
-    border: 'none',
-    borderRadius: '8px',
-    fontWeight: '600',
-    fontSize: '14px',
-    cursor: 'pointer',
-    marginTop: '8px',
-    transition: 'all 0.3s ease'
+  submitButton: {
+    marginTop: '8px !important'
   },
   buttonDisabled: {
     opacity: 0.6,
     cursor: 'not-allowed'
   },
   error: {
-    backgroundColor: '#3d1f1f',
-    color: '#ff6b6b',
+    background: 'rgba(239, 68, 68, 0.1)',
+    border: '1px solid rgba(239, 68, 68, 0.3)',
+    color: '#fca5a5',
     padding: '12px',
-    borderRadius: '6px',
+    borderRadius: '8px',
     fontSize: '13px',
-    textAlign: 'center'
+    textAlign: 'center',
+    fontWeight: '500'
+  },
+  divider: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    margin: '24px 0',
+    fontSize: '13px',
+    color: '#64748b'
+  },
+  demoButton: {
+    fontSize: '14px !important',
+    fontWeight: '600 !important'
+  },
+  disclaimer: {
+    fontSize: '12px',
+    color: '#64748b',
+    textAlign: 'center',
+    marginTop: '16px'
   }
 };

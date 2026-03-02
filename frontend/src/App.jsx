@@ -65,11 +65,14 @@ export default function App() {
 
   // Sync language with settings and document
   useEffect(() => {
-    if (settings.language) {
+    if (settings.language && settings.language !== language) {
       setLanguage(settings.language);
     }
-    document.documentElement.lang = language;
-  }, [settings.language, language]);
+  }, [settings.language]);
+
+  useEffect(() => {
+    document.documentElement.lang = language || 'en';
+  }, [language]);
 
   // Handle View Logic
   useEffect(() => {
@@ -85,7 +88,7 @@ export default function App() {
 
   const handleLanguageChange = (lang) => {
     setLanguage(lang);
-    if (user) updateSettings({ ...settings, language: lang });
+    updateSettings({ ...settings, language: lang });
   };
 
   const handleLoginSuccess = (userData) => {
@@ -102,6 +105,9 @@ export default function App() {
 
   const handleTabChange = (tab) => {
     if (!user && (tab === 'settings' || tab === 'login')) {
+      if (tab === 'login' && localStorage.getItem('kaltrac-initial-login') === null) {
+        localStorage.setItem('kaltrac-initial-login', 'true');
+      }
       setView('login');
     } else {
       setActiveTab(tab);
@@ -120,7 +126,7 @@ export default function App() {
   if (!hasSeenOnboarding && !user) {
     return <OnboardingPage
       language={language}
-      onLanguageChange={setLanguage}
+      onLanguageChange={handleLanguageChange}
       leatherTheme={leatherTheme}
       onThemeChange={setLeatherTheme}
       onComplete={() => {
@@ -133,8 +139,10 @@ export default function App() {
   if (view === "landing" && !user) {
     return <LandingPage 
       onStartTrial={() => setIsTrial(true)} 
-      onGoToLogin={() => setView("login")} 
+      onGoToLogin={() => { setView("login"); localStorage.setItem('kaltrac-initial-login', 'true'); }} 
+      onGoToSignup={() => { setView("login"); localStorage.setItem('kaltrac-initial-login', 'false'); }}
       language={language}
+      onLanguageChange={handleLanguageChange}
       leatherTheme={leatherTheme}
       onThemeChange={setLeatherTheme}
     />;
@@ -150,7 +158,11 @@ export default function App() {
          >
            ← {t('back')}
          </button>
-         <LoginPage onLoginSuccess={handleLoginSuccess} language={language} />
+         <LoginPage 
+           onLoginSuccess={handleLoginSuccess} 
+           language={language} 
+           initialIsLogin={localStorage.getItem('kaltrac-initial-login') !== 'false'}
+         />
       </div>
     );
   }

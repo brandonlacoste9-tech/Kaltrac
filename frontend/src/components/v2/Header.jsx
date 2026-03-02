@@ -58,9 +58,14 @@ export function Header({ activeTab, onTabChange, language, onLanguageChange, use
             </button>
           </div>
         ) : (
-          <button className="btn btn-primary" style={{ fontSize: '10px', padding: '6px 12px' }} onClick={() => onTabChange('settings')}>
-            {t('login')}
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button className="btn btn-ghost" style={{ fontSize: '10px', padding: '6px 12px' }} onClick={() => onTabChange('login')}>
+              {t('login')}
+            </button>
+            <button className="btn btn-primary" style={{ fontSize: '10px', padding: '6px 12px' }} onClick={() => { localStorage.setItem('kaltrac-initial-login', 'false'); onTabChange('login'); }}>
+              {t('signup')}
+            </button>
+          </div>
         )}
       </div>
     </nav>

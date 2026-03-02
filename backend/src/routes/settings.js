@@ -10,12 +10,20 @@ router.get('/', authenticateRequest, async (req, res, next) => {
     const userId = req.user.id;
     
     const result = await query(
-      'SELECT * FROM user_settings WHERE user_id = $1',
+      'SELECT * FROM settings WHERE user_id = $1',
       [userId]
     );
     
     if (result.rows.length === 0) {
-      return res.json({ daily_calorie_goal: 2000, daily_protein_goal: 150, daily_carbs_goal: 250, daily_fat_goal: 65 });
+      return res.json({ 
+        daily_calorie_goal: 2000, 
+        daily_protein_goal: 150, 
+        daily_carbs_goal: 250, 
+        daily_fat_goal: 65,
+        daily_water_goal: 8,
+        language: 'en',
+        dietary_restrictions: []
+      });
     }
     
     res.json(result.rows[0]);
@@ -28,15 +36,30 @@ router.get('/', authenticateRequest, async (req, res, next) => {
 router.put('/', authenticateRequest, async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const { daily_calorie_goal, daily_protein_goal, daily_carbs_goal, daily_fat_goal, dietary_restrictions } = req.body;
+    const { daily_calorie_goal, daily_protein_goal, daily_carbs_goal, daily_fat_goal, daily_water_goal, dietary_restrictions, language } = req.body;
     
     const result = await query(
-      `INSERT INTO user_settings (user_id, daily_calorie_goal, daily_protein_goal, daily_carbs_goal, daily_fat_goal, dietary_restrictions)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO settings (user_id, daily_calorie_goal, daily_protein_goal, daily_carbs_goal, daily_fat_goal, daily_water_goal, dietary_restrictions, language)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        ON CONFLICT (user_id) DO UPDATE SET 
-       daily_calorie_goal = $2, daily_protein_goal = $3, daily_carbs_goal = $4, daily_fat_goal = $5, dietary_restrictions = $6
+       daily_calorie_goal = $2, 
+       daily_protein_goal = $3, 
+       daily_carbs_goal = $4, 
+       daily_fat_goal = $5, 
+       daily_water_goal = $6,
+       dietary_restrictions = $7,
+       language = $8
        RETURNING *`,
-      [userId, daily_calorie_goal, daily_protein_goal, daily_carbs_goal, daily_fat_goal, dietary_restrictions || '[]']
+      [
+        userId, 
+        daily_calorie_goal, 
+        daily_protein_goal, 
+        daily_carbs_goal, 
+        daily_fat_goal, 
+        daily_water_goal || 8,
+        dietary_restrictions || '{}',
+        language || 'en'
+      ]
     );
     
     res.json(result.rows[0]);

@@ -118,11 +118,32 @@ export function AnalyticsPage({ log, weeklyData, goals, language }) {
            <span className="strap-text" style={{ fontSize: '13px' }}>{t('achievements')}</span>
          </div>
          <div style={{ padding: '32px', display: 'flex', gap: '20px', overflowX: 'auto' }}>
-            <Badge emoji="🔥" label={t('streak3')} active={true} t={t} />
-            <Badge emoji="🥑" label={t('macroMaster')} active={true} t={t} />
-            <Badge emoji="💧" label={t('hydroHero')} active={false} t={t} />
-            <Badge emoji="🏋️" label={t('ironWarrior')} active={false} t={t} />
+            <Badge 
+              emoji="🔥" 
+              label={t('streak3')} 
+              active={weeklyData?.filter(d => d.calories > 0).length >= 3} 
+              t={t} 
+            />
+            <Badge 
+              emoji="🥑" 
+              label={t('macroMaster')} 
+              active={log.reduce((s, m) => s+Number(m.protein||0), 0) >= (goals.daily_protein_goal * 0.8)} 
+              t={t} 
+            />
+            <Badge 
+              emoji="💧" 
+              label={t('hydroHero')} 
+              active={stats.find(s => s.label === t('water'))?.value >= goals.daily_water_goal} 
+              t={t} 
+            />
+            <Badge 
+              emoji="🏋️" 
+              label={t('ironWarrior')} 
+              active={false} 
+              t={t} 
+            />
          </div>
+
       </div>
     </div>
   );

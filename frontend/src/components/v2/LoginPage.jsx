@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { useTranslation } from '../../i18n/translations';
 import { authAPI } from '../../services/api';
 
-export function LoginPage({ onLoginSuccess, language }) {
+export function LoginPage({ onLoginSuccess, language, initialIsLogin = true }) {
   const { t } = useTranslation(language);
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(initialIsLogin);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [promoCode, setPromoCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -22,14 +23,20 @@ export function LoginPage({ onLoginSuccess, language }) {
         localStorage.setItem('user', JSON.stringify(res.data.user));
         onLoginSuccess(res.data.user);
       } else {
-        const res = await authAPI.register(email, password, name);
+        const res = await authAPI.register(email, password, name, promoCode);
         localStorage.setItem('authToken', res.data.token);
         localStorage.setItem('user', JSON.stringify(res.data.user));
         onLoginSuccess(res.data.user);
       }
     } catch (err) {
-      setError(err.response?.data?.error || t('errorAuth'));
+      const errorMsg = err.response?.data?.error;
+      if (errorMsg && (errorMsg.includes('VIP') || errorMsg.includes('secret key'))) {
+        setError(t('errorVIP'));
+      } else {
+        setError(errorMsg || t('errorAuth'));
+      }
     } finally {
+
       setLoading(false);
     }
   };
@@ -47,10 +54,12 @@ export function LoginPage({ onLoginSuccess, language }) {
 
         <form onSubmit={handleSubmit}>
           {!isLogin && (
-            <div className="form-group">
-               <label>{t('name')}</label>
-               <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Jean Tremblay" required />
-            </div>
+            <>
+              <div className="form-group">
+                 <label>{t('name')}</label>
+                 <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Jean Tremblay" required />
+              </div>
+            </>
           )}
           <div className="form-group">
              <label>{t('email')}</label>
@@ -61,7 +70,21 @@ export function LoginPage({ onLoginSuccess, language }) {
              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
           </div>
 
-          {error && <p className="text-red" style={{ fontSize: '12px', marginBottom: '16px' }}>⚠️ {error}</p>}
+          {!isLogin && (
+            <div className="form-group">
+               <label>{t('promoCode')}</label>
+               <input 
+                 type="text" 
+                 value={promoCode} 
+                 onChange={(e) => setPromoCode(e.target.value)} 
+                 placeholder={t('promoCodePlaceholder')} 
+                 style={{ borderStyle: 'dashed', borderColor: 'var(--gold)' }}
+               />
+            </div>
+          )}
+
+          {error && <p className="text-red" style={{ fontSize: '12px', marginBottom: '16px', color: 'var(--red)' }}>⚠️ {error}</p>}
+
 
           <button className="btn btn-primary" type="submit" style={{ width: '100%' }} disabled={loading}>
             {loading ? '...' : (isLogin ? t('login') : t('signup'))}

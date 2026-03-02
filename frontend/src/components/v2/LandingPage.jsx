@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from '../../i18n/translations';
 import { ThemeSelector } from './ThemeSelector';
 
-export function LandingPage({ onStartTrial, onGoToLogin, language, leatherTheme, onThemeChange }) {
+export function LandingPage({ onStartTrial, onGoToLogin, onGoToSignup, language, onLanguageChange, leatherTheme, onThemeChange }) {
   const { t } = useTranslation(language);
 
   const renderHighlightedText = (text) => {
@@ -48,8 +48,21 @@ export function LandingPage({ onStartTrial, onGoToLogin, language, leatherTheme,
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <ThemeSelector currentTheme={leatherTheme} onThemeChange={onThemeChange} />
+          
+          <button 
+            className="btn btn-ghost" 
+            style={{ padding: '4px 8px', fontSize: '11px', fontWeight: '600' }}
+            onClick={() => onLanguageChange(language === 'en' ? 'fr' : 'en')}
+          >
+            {language === 'en' ? 'FR' : 'EN'}
+          </button>
+
           <button className="btn btn-ghost" onClick={onGoToLogin}>
             {t('login')}
+          </button>
+          
+          <button className="btn btn-primary" style={{ fontSize: '10px', padding: '6px 16px' }} onClick={onGoToSignup}>
+            {t('signup')}
           </button>
         </div>
       </header>

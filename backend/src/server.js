@@ -64,21 +64,27 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Not found' });
 });
 
-app.listen(PORT, async () => {
-  console.log(`\n⚜ KalTrac 2.0 API — Luxury Leather Edition`);
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`🌐 Frontend: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
-  
-  // Check Ollama
-  try {
-    const ollamaBase = (process.env.OLLAMA_URL || 'http://localhost:11434/api/chat').replace('/api/chat', '');
-    await axios.get(ollamaBase, { timeout: 3000 });
-    console.log(`✅ Ollama AI connected at ${ollamaBase}`);
-  } catch {
-    console.log(`⚠️  Ollama not detected — AI features will use sample data`);
-    console.log(`   Start Ollama with: ollama serve`);
-  }
-  
-  console.log(`\n📁 Database: auto-detect (PostgreSQL → local JSON fallback)`);
-  console.log(`✨ Ready!\n`);
-});
+// Export for Vercel
+export default app;
+
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, async () => {
+    console.log(`\n⚜ KalTrac 2.0 API — Luxury Leather Edition`);
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`🌐 Frontend: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
+    
+    // Check Ollama
+    try {
+      const ollamaBase = (process.env.OLLAMA_URL || 'http://localhost:11434/api/chat').replace('/api/chat', '');
+      await axios.get(ollamaBase, { timeout: 3000 });
+      console.log(`✅ Ollama AI connected at ${ollamaBase}`);
+    } catch {
+      console.log(`⚠️  Ollama not detected — AI features will use sample data`);
+      console.log(`   Start Ollama with: ollama serve`);
+    }
+    
+    console.log(`\n📁 Database: auto-detect (PostgreSQL → local JSON fallback)`);
+    console.log(`✨ Ready!\n`);
+  });
+}
+

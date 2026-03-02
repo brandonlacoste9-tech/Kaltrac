@@ -8,7 +8,7 @@ const DEFAULT_SETTINGS = {
   daily_fat_goal: 65,
   daily_water_goal: 8,
   dietary_restrictions: [],
-  language: 'en'
+  language: ''
 };
 
 export function useCalorieTracker() {

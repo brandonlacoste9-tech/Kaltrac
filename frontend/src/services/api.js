@@ -33,8 +33,8 @@ api.interceptors.response.use(
 
 // Auth API
 export const authAPI = {
-  register: (email, password, name) => 
-    api.post('/auth/register', { email, password, name }),
+  register: (email, password, name, promoCode) => 
+    api.post('/auth/register', { email, password, name, promoCode }),
   login: (email, password) => 
     api.post('/auth/login', { email, password }),
   getCurrentUser: () => 

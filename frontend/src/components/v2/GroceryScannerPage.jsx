@@ -81,13 +81,13 @@ export function GroceryScannerPage({ language, userSettings }) {
   const renderIngredientPill = (ing) => {
     let color = '';
     const text = ing.text.toLowerCase();
-    const restrictions = userSettings.dietary_restrictions || [];
+    const restrictions = userSettings?.dietary_restrictions || [];
     const isAllergen = restrictions.some(r => text.includes(r.toLowerCase()));
     if (isAllergen) color = 'red';
     else if (text.includes('sugar') || text.includes('syrup')) color = 'gold';
     else if (text.includes('organic') || text.includes('bio')) color = 'green';
     return (
-      <span key={ing.text} className={`tag-pill ingredient-pill ${color}`}>
+      <span key={ing.text} className={`tag-pill ingredient-pill ${color}`} style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.2)', border: color ? 'none' : '1px solid var(--border)', background: color ? undefined : 'var(--raised)' }}>
         {ing.text}
       </span>
     );
@@ -144,10 +144,17 @@ export function GroceryScannerPage({ language, userSettings }) {
                  {/* Safety Report */}
                  {safetyReport && <SafetyPanel report={safetyReport} t={t} />}
 
-                 <div className="ingredients" style={{ marginTop: '24px' }}>
-                    <h4 className="serif" style={{ fontSize: '16px', marginBottom: '12px', color: 'var(--gold)' }}>{t('ingredientsDeepDive')}</h4>
-                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                       {product.ingredients?.slice(0, 15).map(renderIngredientPill)}
+                 <div className="ingredients card animate-in" style={{ marginTop: '24px', padding: 0, overflow: 'hidden', boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.02), 0 8px 24px rgba(0,0,0,0.3)', border: '1px solid var(--border)', background: 'var(--raised)' }}>
+                    <div className="strap" style={{ borderTopLeftRadius: "14px", borderTopRightRadius: "14px", borderTop: "none" }}>
+                       <span className="fleur" style={{ marginLeft: '12px' }}>🌿</span>
+                       <span className="strap-text" style={{ fontSize: '13px' }}>{t('ingredientsDeepDive')}</span>
+                    </div>
+                    <div style={{ padding: '24px' }}>
+                       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', background: 'var(--surface)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)', boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.5)' }}>
+                          {product.ingredients?.length > 0 
+                             ? product.ingredients.slice(0, 15).map(renderIngredientPill)
+                             : <p style={{ color: 'var(--muted)', fontSize: '13px', fontStyle: 'italic' }}>No detailed ingredients found.</p>}
+                       </div>
                     </div>
                  </div>
 
@@ -252,84 +259,97 @@ function SafetyPanel({ report, t }) {
   if (!report) return null;
   
   const scoreColor = report.healthScore >= 7 ? 'var(--green)' : report.healthScore >= 4 ? '#fecb02' : 'var(--red)';
+  const scoreGlow = report.healthScore >= 7 ? 'rgba(126, 201, 138, 0.4)' : report.healthScore >= 4 ? 'rgba(254, 203, 2, 0.4)' : 'rgba(230, 62, 17, 0.4)';
   
   return (
-    <div style={{ margin: '20px 0', padding: '20px', background: 'var(--raised)', borderRadius: '12px', border: '1px solid var(--border)' }}>
-      {/* Health Score + Verdict */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
-        <div style={{
-          width: '56px', height: '56px', borderRadius: '50%',
-          border: `4px solid ${scoreColor}`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '24px', fontWeight: 'bold', color: scoreColor,
-          flexShrink: 0,
-        }}>
-          {report.healthScore}
-        </div>
-        <div>
-          <p style={{ fontSize: '18px', fontWeight: 'bold' }}>{report.verdict}</p>
-          {report.isUltraProcessed && (
-            <p style={{ fontSize: '11px', color: 'var(--red)', marginTop: '4px' }}>⚠️ Ultra-processed (NOVA 4)</p>
-          )}
-        </div>
+    <div className="card animate-in" style={{ margin: '32px 0 24px', padding: 0, overflow: 'hidden', boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.02), 0 8px 24px rgba(0,0,0,0.3)', border: '1px solid var(--border)', background: 'var(--raised)' }}>
+      <div className="strap" style={{ borderTopLeftRadius: "14px", borderTopRightRadius: "14px", borderTop: "none" }}>
+         <span className="fleur" style={{ marginLeft: '12px' }}>⚜</span>
+         <span className="strap-text" style={{ fontSize: '13px' }}>AI Safety Analysis</span>
       </div>
-
-      {/* Flagged Additives */}
-      {report.flaggedAdditives?.length > 0 && (
-        <div style={{ marginBottom: '16px' }}>
-          <h5 style={{ fontSize: '12px', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
-            ⚠️ Flagged Additives ({report.flaggedAdditives.length})
-          </h5>
-          {report.flaggedAdditives.map((a, i) => (
-            <div key={i} style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              padding: '8px 12px', marginBottom: '4px', borderRadius: '8px',
-              background: a.risk === 'high' ? 'rgba(230, 62, 17, 0.1)' : 'rgba(254, 203, 2, 0.1)',
-              border: `1px solid ${a.risk === 'high' ? 'rgba(230, 62, 17, 0.3)' : 'rgba(254, 203, 2, 0.3)'}`,
-            }}>
-              <div>
-                <p style={{ fontSize: '13px', fontWeight: 600 }}>{a.name}</p>
-                <p style={{ fontSize: '11px', color: 'var(--muted)' }}>{a.note}</p>
-              </div>
-              <span className={`tag-pill ${a.risk === 'high' ? 'red' : 'gold'}`}>{a.risk}</span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Allergens */}
-      {report.allergens?.length > 0 && (
-        <div style={{ marginBottom: '16px' }}>
-          <h5 style={{ fontSize: '12px', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
-            🏷️ Allergens
-          </h5>
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-            {report.allergens.map((a, i) => (
-              <span key={i} className="tag-pill red" style={{ textTransform: 'capitalize' }}>{a}</span>
-            ))}
+      
+      <div style={{ padding: '24px' }}>
+        {/* Health Score + Verdict */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px' }}>
+          <div style={{
+            width: '64px', height: '64px', borderRadius: '50%',
+            border: `3px solid ${scoreColor}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '28px', fontWeight: 'bold', color: scoreColor,
+            flexShrink: 0,
+            background: 'var(--surface)',
+            boxShadow: `0 0 16px ${scoreGlow}, inset 0 2px 4px rgba(0,0,0,0.5)`,
+            textShadow: `0 2px 8px ${scoreGlow}`
+          }}>
+            {report.healthScore}
+          </div>
+          <div>
+            <h3 className="serif" style={{ fontSize: '22px', fontWeight: 'bold', color: 'var(--text)', filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.5))' }}>{report.verdict}</h3>
+            {report.isUltraProcessed && (
+              <p style={{ fontSize: '12px', color: 'var(--red)', marginTop: '6px', fontWeight: 600, letterSpacing: '0.5px' }}>⚠️ Ultra-processed (NOVA 4)</p>
+            )}
           </div>
         </div>
-      )}
 
-      {/* Women's Health Flags */}
-      {report.womensFlags?.length > 0 && (
-        <div>
-          <h5 style={{ fontSize: '12px', color: 'var(--gold)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
-            ⚜ Women's Health Insights
-          </h5>
-          {report.womensFlags.map((flag, i) => (
-            <div key={i} style={{
-              display: 'flex', alignItems: 'center', gap: '10px',
-              padding: '8px 12px', marginBottom: '4px', borderRadius: '8px',
-              background: flag.severity === 'positive' ? 'rgba(126, 201, 138, 0.1)' : 'rgba(254, 203, 2, 0.1)',
-              border: `1px solid ${flag.severity === 'positive' ? 'rgba(126, 201, 138, 0.3)' : 'rgba(254, 203, 2, 0.3)'}`,
-            }}>
-              <span style={{ fontSize: '18px' }}>{flag.icon}</span>
-              <p style={{ fontSize: '12px' }}>{flag.text}</p>
+        {/* Flagged Additives */}
+        {report.flaggedAdditives?.length > 0 && (
+          <div style={{ marginBottom: '20px' }}>
+            <h5 className="serif" style={{ fontSize: '16px', color: 'var(--gold)', marginBottom: '12px', filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.5))' }}>
+              ⚠️ Flagged Additives ({report.flaggedAdditives.length})
+            </h5>
+            {report.flaggedAdditives.map((a, i) => (
+              <div key={i} style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                padding: '12px 16px', marginBottom: '8px', borderRadius: '12px',
+                background: a.risk === 'high' ? 'rgba(230, 62, 17, 0.1)' : 'rgba(254, 203, 2, 0.1)',
+                border: `1px solid ${a.risk === 'high' ? 'rgba(230, 62, 17, 0.3)' : 'rgba(254, 203, 2, 0.3)'}`,
+                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)'
+              }}>
+                <div>
+                  <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text)' }}>{a.name}</p>
+                  <p style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>{a.note}</p>
+                </div>
+                <span className={`tag-pill ${a.risk === 'high' ? 'red' : 'gold'}`} style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>{a.risk}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Allergens */}
+        {report.allergens?.length > 0 && (
+          <div style={{ marginBottom: '20px' }}>
+            <h5 className="serif" style={{ fontSize: '16px', color: 'var(--gold)', marginBottom: '12px', filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.5))' }}>
+              🏷️ Allergens
+            </h5>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', background: 'var(--surface)', padding: '12px', borderRadius: '12px', border: '1px solid var(--border)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)' }}>
+              {report.allergens.map((a, i) => (
+                <span key={i} className="tag-pill red" style={{ textTransform: 'capitalize', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>{a}</span>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        )}
+
+        {/* Women's Health Flags */}
+        {report.womensFlags?.length > 0 && (
+          <div>
+            <h5 className="serif" style={{ fontSize: '16px', color: 'var(--gold)', marginBottom: '12px', filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.5))' }}>
+              ⚜ Women's Health Insights
+            </h5>
+            {report.womensFlags.map((flag, i) => (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'center', gap: '12px',
+                padding: '12px 16px', marginBottom: '8px', borderRadius: '12px',
+                background: flag.severity === 'positive' ? 'rgba(126, 201, 138, 0.1)' : 'rgba(254, 203, 2, 0.1)',
+                border: `1px solid ${flag.severity === 'positive' ? 'rgba(126, 201, 138, 0.3)' : 'rgba(254, 203, 2, 0.3)'}`,
+                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)'
+              }}>
+                <span style={{ fontSize: '20px', filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.5))' }}>{flag.icon}</span>
+                <p style={{ fontSize: '13px', color: 'var(--text)' }}>{flag.text}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

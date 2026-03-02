@@ -214,9 +214,10 @@ export function TrackerPage({ user, log, goals, onAddMeal, onRemoveMeal, languag
                      handleBarcodeDetected(res[0].rawValue);
                    }
                  }}
+                 onError={(err) => setError(err?.message || "Failed to access camera")}
+                 formats={['qr_code', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39']}
                  styles={{ container: { width: '100%', height: 220 } }}
                  components={{ torch: true, finder: true }}
-                 constraints={{ facingMode: 'environment' }}
                />
                <button 
                   className="btn btn-ghost" 

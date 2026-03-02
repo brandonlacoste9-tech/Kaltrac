@@ -104,6 +104,11 @@ export function GroceryScannerPage({ language, userSettings }) {
             <div className="scanner-viewport" style={{ position: 'relative', minHeight: '300px' }}>
               <Scanner
                 onScan={(res) => res && res[0] && handleScan(res[0].rawValue)}
+                onError={(err) => {
+                  setError(err?.message || "Failed to access camera");
+                  setScannerOpen(false);
+                }}
+                formats={['qr_code', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39']}
                 styles={{ container: { height: 350, width: '100%' } }}
                 components={{ torch: true, finder: true }}
               />

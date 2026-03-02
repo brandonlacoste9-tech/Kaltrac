@@ -1,336 +1,202 @@
 import { useState, useCallback, useEffect } from "react";
-import { mealsAPI, settingsAPI } from "../services/api";
+import { mealsAPI, settingsAPI, workoutsAPI, waterAPI } from "../services/api";
 
-const DEFAULT_DAILY_GOAL = 2000;
+const DEFAULT_SETTINGS = {
+  daily_calorie_goal: 2000,
+  daily_protein_goal: 150,
+  daily_carbs_goal: 250,
+  daily_fat_goal: 65,
+  daily_water_goal: 8,
+  dietary_restrictions: [],
+  language: 'en'
+};
 
 export function useCalorieTracker() {
+  const [user, setUser] = useState(null);
   const [log, setLog] = useState([]);
-  const [result, setResult] = useState(null);
-  const [historicalData, setHistoricalData] = useState({});
-  const [dailyGoal, setDailyGoal] = useState(DEFAULT_DAILY_GOAL);
-  const [isOnline, setIsOnline] = useState(true);
+  const [workouts, setWorkouts] = useState([]);
+  const [water, setWater] = useState(0);
+  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+  const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
 
-  // Check if user is authenticated
-  const isAuthenticated = () => localStorage.getItem("authToken") !== null;
-
-  // Load initial data
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        // Load settings
-        if (isAuthenticated()) {
-          const settingsRes = await settingsAPI.getSettings();
-          setDailyGoal(settingsRes.data.daily_calorie_goal || DEFAULT_DAILY_GOAL);
-
-          // Load meals from backend
-          const mealsRes = await mealsAPI.getTodayMeals();
-          processAndSetMeals(mealsRes.data);
-        } else {
-          // Fall back to localStorage
-          loadFromLocalStorage();
-        }
-      } catch (error) {
-        console.error("Error loading data:", error);
-        loadFromLocalStorage();
-      }
-    };
-
-    loadData();
+  // Auth check
+  const checkAuth = useCallback(() => {
+    const savedUser = localStorage.getItem('user');
+    const token = localStorage.getItem('authToken');
+    if (savedUser && token) {
+      setUser(JSON.parse(savedUser));
+      return true;
+    }
+    return false;
   }, []);
 
-  // Listen for online/offline events
-  useEffect(() => {
-    window.addEventListener("online", () => setIsOnline(true));
-    window.addEventListener("offline", () => setIsOnline(false));
-
-    return () => {
-      window.removeEventListener("online", () => setIsOnline(true));
-      window.removeEventListener("offline", () => setIsOnline(false));
-    };
+  const logout = useCallback(() => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    setUser(null);
   }, []);
 
-  const loadFromLocalStorage = useCallback(() => {
+  // Offline/Trial Persisters
+  const saveOffline = (key, data) => {
+    localStorage.setItem(`kaltrac_trial_${key}`, JSON.stringify(data));
+  };
+
+  const loadOffline = (key, defaultValue) => {
+    const saved = localStorage.getItem(`kaltrac_trial_${key}`);
+    return saved ? JSON.parse(saved) : defaultValue;
+  };
+
+  // Data Loading
+  const loadData = useCallback(async () => {
+    const isAuth = checkAuth();
+    
+    if (!isAuth) {
+      // Load from localStorage for trial mode
+      setLog(loadOffline('meals', []));
+      setWorkouts(loadOffline('workouts', []));
+      setWater(loadOffline('water', 0));
+      setSettings(loadOffline('settings', DEFAULT_SETTINGS));
+      setLoading(false);
+      return;
+    }
+    
+    setLoading(true);
     try {
-      const saved = localStorage.getItem("kaltrac_meals");
-      const savedHistory = localStorage.getItem("kaltrac_history");
-      if (saved) setLog(JSON.parse(saved));
-      if (savedHistory) setHistoricalData(JSON.parse(savedHistory));
-    } catch (e) {
-      console.error("Error loading from localStorage:", e);
+      const [mealsRes, settingsRes, workoutsRes, waterRes] = await Promise.all([
+        mealsAPI.getToday(),
+        settingsAPI.get(),
+        workoutsAPI.getToday(),
+        waterAPI.getToday()
+      ]);
+
+      setLog(mealsRes.data || []);
+      setSettings(settingsRes.data || DEFAULT_SETTINGS);
+      setWorkouts(workoutsRes.data || []);
+      setWater(waterRes.data?.glasses_count || 0);
+    } catch (error) {
+      console.error("Failed to load from API, falling back to local:", error);
+      // Even if authed, if API fails, fallback to local for safety
+      setLog(loadOffline('meals', []));
+    } finally {
+      setLoading(false);
     }
-  }, []);
+  }, [checkAuth]);
 
-  const processAndSetMeals = useCallback((meals) => {
-    const processed = meals.map((meal) => ({
-      id: meal.id,
-      date: meal.logged_at.split("T")[0],
-      name: meal.name,
-      calories: meal.calories,
-      protein: meal.protein,
-      carbs: meal.carbs,
-      fat: meal.fat,
-      time: new Date(meal.logged_at).toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-    }));
+  useEffect(() => { loadData(); }, [loadData]);
 
-    setLog(processed);
-
-    // Rebuild historical data
-    const history = {};
-    processed.forEach((meal) => {
-      if (!history[meal.date]) {
-        history[meal.date] = {
-          calories: 0,
-          protein: 0,
-          carbs: 0,
-          fat: 0,
-          mealCount: 0,
-        };
-      }
-      history[meal.date].calories += meal.calories;
-      history[meal.date].protein += meal.protein;
-      history[meal.date].carbs += meal.carbs;
-      history[meal.date].fat += meal.fat;
-      history[meal.date].mealCount += 1;
-    });
-
-    setHistoricalData(history);
-  }, []);
-
-  const getTodayDate = useCallback(() => {
-    return new Date().toISOString().split("T")[0];
-  }, []);
-
-  const addToLog = useCallback(
-    async (foodItem) => {
-      const now = new Date();
-      const todayDate = getTodayDate();
-
-      const mealData = {
-        name: foodItem.name,
-        calories: foodItem.calories,
-        protein: foodItem.protein,
-        carbs: foodItem.carbs,
-        fat: foodItem.fat,
-        fiber: foodItem.fiber || 0,
-        meal_type: "tracked",
-        notes: foodItem.note || "",
-      };
-
-      if (isAuthenticated()) {
-        try {
-          setSyncing(true);
-          const response = await mealsAPI.add(mealData);
-
-          // Add to local state
-          const newItem = {
-            id: response.data.id,
-            date: todayDate,
-            name: response.data.name,
-            calories: response.data.calories,
-            protein: response.data.protein,
-            carbs: response.data.carbs,
-            fat: response.data.fat,
-            time: now.toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-          };
-
-          setLog((prev) => [newItem, ...prev]);
-
-          // Update historical data
-          setHistoricalData((prev) => ({
-            ...prev,
-            [todayDate]: {
-              calories:
-                (prev[todayDate]?.calories || 0) + (foodItem.calories || 0),
-              protein:
-                (prev[todayDate]?.protein || 0) + (foodItem.protein || 0),
-              carbs: (prev[todayDate]?.carbs || 0) + (foodItem.carbs || 0),
-              fat: (prev[todayDate]?.fat || 0) + (foodItem.fat || 0),
-              mealCount: (prev[todayDate]?.mealCount || 0) + 1,
-            },
-          }));
-        } catch (error) {
-          console.error("Error adding meal to backend:", error);
-          // Fall back to localStorage
-          addToLocalStorage(foodItem, todayDate);
-        } finally {
-          setSyncing(false);
-        }
-      } else {
-        // Use localStorage if not authenticated
-        addToLocalStorage(foodItem, todayDate);
-      }
-    },
-    [getTodayDate, isAuthenticated]
-  );
-
-  const addToLocalStorage = useCallback((foodItem, todayDate) => {
-    const newItem = {
-      id: Date.now(),
-      date: todayDate,
-      name: foodItem.name,
-      calories: foodItem.calories,
-      protein: foodItem.protein,
-      carbs: foodItem.carbs,
-      fat: foodItem.fat,
-      time: new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-    };
-
-    setLog((prev) => [newItem, ...prev]);
-
-    setHistoricalData((prev) => ({
-      ...prev,
-      [todayDate]: {
-        calories:
-          (prev[todayDate]?.calories || 0) + (foodItem.calories || 0),
-        protein: (prev[todayDate]?.protein || 0) + (foodItem.protein || 0),
-        carbs: (prev[todayDate]?.carbs || 0) + (foodItem.carbs || 0),
-        fat: (prev[todayDate]?.fat || 0) + (foodItem.fat || 0),
-        mealCount: (prev[todayDate]?.mealCount || 0) + 1,
-      },
-    }));
-
-    // Save to localStorage as backup
-    localStorage.setItem("kaltrac_meals", JSON.stringify([newItem, ...log]));
-  }, [log]);
-
-  const removeFromLog = useCallback(
-    async (id) => {
-      if (isAuthenticated()) {
-        try {
-          setSyncing(true);
-          await mealsAPI.deleteMeal(id);
-        } catch (error) {
-          console.error("Error deleting meal:", error);
-        } finally {
-          setSyncing(false);
-        }
-      }
-
-      // Remove from local state
-      setLog((prev) => {
-        const itemToRemove = prev.find((item) => item.id === id);
-        if (itemToRemove) {
-          setHistoricalData((prevHistory) => {
-            const date = itemToRemove.date;
-            const updated = { ...prevHistory };
-            if (updated[date]) {
-              updated[date] = {
-                ...updated[date],
-                calories: Math.max(
-                  0,
-                  updated[date].calories - itemToRemove.calories
-                ),
-                protein: Math.max(
-                  0,
-                  updated[date].protein - (itemToRemove.protein || 0)
-                ),
-                carbs: Math.max(
-                  0,
-                  updated[date].carbs - (itemToRemove.carbs || 0)
-                ),
-                fat: Math.max(0, updated[date].fat - (itemToRemove.fat || 0)),
-                mealCount: Math.max(0, updated[date].mealCount - 1),
-              };
-            }
-            return updated;
-          });
-        }
-        return prev.filter((item) => item.id !== id);
-      });
-    },
-    [isAuthenticated]
-  );
-
-  const getTodayLog = useCallback(() => {
-    const todayDate = getTodayDate();
-    return log.filter((item) => item.date === todayDate);
-  }, [log, getTodayDate]);
-
-  const getTotalCalories = useCallback(() => {
-    return getTodayLog().reduce((sum, item) => sum + item.calories, 0);
-  }, [getTodayLog]);
-
-  const getTotalMacros = useCallback(() => {
-    const todayLog = getTodayLog();
-    return {
-      protein: todayLog.reduce((sum, item) => sum + (item.protein || 0), 0),
-      carbs: todayLog.reduce((sum, item) => sum + (item.carbs || 0), 0),
-      fat: todayLog.reduce((sum, item) => sum + (item.fat || 0), 0),
-    };
-  }, [getTodayLog]);
-
-  const getCaloriePercentage = useCallback(() => {
-    const total = getTotalCalories();
-    return Math.min((total / dailyGoal) * 100, 100);
-  }, [getTotalCalories, dailyGoal]);
-
-  const getWeeklyData = useCallback(() => {
-    const weekData = [];
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split("T")[0];
-      weekData.push({
-        date: dateStr,
-        day: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][date.getDay()],
-        ...(historicalData[dateStr] || {
-          calories: 0,
-          protein: 0,
-          carbs: 0,
-          fat: 0,
-          mealCount: 0,
-        }),
-      });
+  // Actions
+  const addMeal = async (mealData) => {
+    const isAuth = !!localStorage.getItem('authToken');
+    if (isAuth) {
+      setSyncing(true);
+      try {
+        const res = await mealsAPI.add(mealData);
+        setLog(prev => [res.data, ...prev]);
+      } catch (err) { console.error(err); }
+      finally { setSyncing(false); }
+    } else {
+      const newItem = { ...mealData, id: Date.now(), logged_at: new Date().toISOString() };
+      const updated = [newItem, ...log];
+      setLog(updated);
+      saveOffline('meals', updated);
     }
-    return weekData;
-  }, [historicalData]);
+  };
 
-  const getMonthlyData = useCallback(() => {
-    const monthData = [];
-    for (let i = 29; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split("T")[0];
-      monthData.push({
-        date: dateStr,
-        day: date.getDate(),
-        ...(historicalData[dateStr] || {
-          calories: 0,
-          protein: 0,
-          carbs: 0,
-          fat: 0,
-          mealCount: 0,
-        }),
-      });
+  const removeMeal = async (id) => {
+    const isAuth = !!localStorage.getItem('authToken');
+    if (isAuth) {
+      try {
+        await mealsAPI.delete(id);
+        setLog(prev => prev.filter(m => m.id !== id));
+      } catch (err) { console.error(err); }
+    } else {
+      const updated = log.filter(m => m.id !== id);
+      setLog(updated);
+      saveOffline('meals', updated);
     }
-    return monthData;
-  }, [historicalData]);
+  };
+
+  const addWorkout = async (workoutData) => {
+    const isAuth = !!localStorage.getItem('authToken');
+    if (isAuth) {
+      try {
+        const res = await workoutsAPI.add(workoutData);
+        setWorkouts(prev => [res.data, ...prev]);
+      } catch (err) { console.error(err); }
+    } else {
+      const newItem = { ...workoutData, id: Date.now() };
+      const updated = [newItem, ...workouts];
+      setWorkouts(updated);
+      saveOffline('workouts', updated);
+    }
+  };
+
+  const removeWorkout = async (id) => {
+    const isAuth = !!localStorage.getItem('authToken');
+    if (isAuth) {
+      try {
+        await workoutsAPI.delete(id);
+        setWorkouts(prev => prev.filter(w => w.id !== id));
+      } catch (err) { console.error(err); }
+    } else {
+      const updated = workouts.filter(w => w.id !== id);
+      setWorkouts(updated);
+      saveOffline('workouts', updated);
+    }
+  };
+
+  const updateWater = async (count) => {
+    const isAuth = !!localStorage.getItem('authToken');
+    if (isAuth) {
+      try {
+        await waterAPI.update(count);
+        setWater(count);
+      } catch (err) { console.error(err); }
+    } else {
+      setWater(count);
+      saveOffline('water', count);
+    }
+  };
+
+  const updateSettings = async (newSettings) => {
+    const isAuth = !!localStorage.getItem('authToken');
+    if (isAuth) {
+      try {
+        await settingsAPI.update(newSettings);
+        setSettings(newSettings);
+      } catch (err) { console.error(err); }
+    } else {
+      setSettings(newSettings);
+      saveOffline('settings', newSettings);
+    }
+  };
+
+  // Analytics Helpers
+  const getWeeklyStats = () => {
+    return Array.from({ length: 7 }, (_, i) => ({
+      day: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date(Date.now() - i * 86400000).getDay()],
+      calories: i === 0 ? log.reduce((s, m) => s + (Number(m.calories) || 0), 0) : 0
+    })).reverse();
+  };
 
   return {
+    user,
+    setUser,
     log,
-    result,
-    setResult,
-    addToLog,
-    removeFromLog,
-    getTotalCalories,
-    getTotalMacros,
-    getCaloriePercentage,
-    getTodayLog,
-    getWeeklyData,
-    getMonthlyData,
-    historicalData,
-    DAILY_GOAL: dailyGoal,
-    isOnline,
+    workouts,
+    water,
+    settings,
+    loading,
     syncing,
+    logout,
+    addMeal,
+    removeMeal,
+    addWorkout,
+    removeWorkout,
+    updateWater,
+    updateSettings,
+    getWeeklyStats,
+    loadData
   };
 }

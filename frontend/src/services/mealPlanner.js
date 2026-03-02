@@ -1,4 +1,4 @@
-import { analyzeFood } from './deepseekAPI';
+import { analyzeFood } from './ollamaAPI';
 
 export async function generateMealPlan(dailyGoal, dietaryRestrictions, preferences) {
   const prompt = `You are a nutrition expert. Generate a healthy 7-day meal plan with these constraints:

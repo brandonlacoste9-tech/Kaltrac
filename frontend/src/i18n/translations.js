@@ -1,268 +1,503 @@
-// Bilingual translations for Kaltrac (Quebec French + English)
+// Bilingual translations for KalTrac 2.0 (Quebec French + English)
 
 export const translations = {
   fr: {
     // App branding
-    appName: "Kaltrac",
+    appName: "KalTrac",
     tagline: "Suiveur de calories quotidien",
-    
-    // Progress ring
+    logoText: "KalTrac",
+
+    // Navigation Tabs
+    track: "Journal",
+    analytics: "Analyses",
+    workouts: "Entraînements",
+    water: "Eau",
+    mealPlans: "Plans alimentaires",
+    grocery: "🛒 Épicerie",
+    export: "Exportation",
+    settings: "Paramètres",
+    logout: "Déconnexion",
+
+    // Progress
     kcalEaten: "kcal mangées",
     goal: "Objectif",
     eaten: "Mangé",
     remaining: "Restant",
-    mealsLogged: "Repas enregistrés",
+    done: "Complété",
     kcal: "kcal",
-    
-    // Upload zone
-    tapToPhoto: "Touchez pour photographier votre nourriture",
-    dragDrop: "ou glissez-déposez une image ici",
-    changePhoto: "Changer la photo",
-    identifyCalories: "Identifier et compter les calories",
-    analyzing: "Analyse en cours...",
-    
-    // Result card
+    dailyGoal: "Objectif quotidien",
+
+    // Macros
     protein: "Protéines",
     carbs: "Glucides",
-    fat: "Gras",
-    addToLog: "+ Ajouter au journal d'aujourd'hui",
-    
-    // Food log
-    todaysLog: "Journal d'aujourd'hui",
-    noMealsYet: "Aucun repas enregistré encore.",
+    fat: "Lipides",
+    sugar: "Sucre",
+    fiber: "Fibres",
+
+    // Modes
+    photoMode: "📷 Photo",
+    barcodeMode: "🔲 Code-barres",
+
+    // Photo Analysis
+    tapToPhoto: "Photographiez votre repas",
+    dragDrop: "ou glissez-déposez ici",
+    changePhoto: "Changer la photo",
+    identifyCalories: "🔍 Identifier & Compter",
+    analyzing: "Analyse par l'IA...",
+    identifySuccess: "Analyse réussie!",
+    aiNote: "Note de l'IA",
+    ingredients: "Ingrédients",
+
+    // Barcode Scanning
+    openScanner: "🔲 Ouvrir le lecteur",
+    pointCamera: "Pointez vers le code",
+    barcodeFound: "✓ Code trouvé!",
+    manualEntry: "Saisie manuelle",
+    lookup: "Chercher",
+    scanAnother: "↩ Scanner un autre",
+
+    // Product Details
+    servingSize: "Portion",
+    servings: "Portions",
+    whatsInside: "🔬 Qu'est-ce qu'il y a dedans?",
+    allergens: "⚠️ Allergènes",
+    additives: "Additifs",
+    nutriscore: "Nutri-Score",
+    novaGroup: "Groupe NOVA",
+    processingLevel: "Niveau de transformation",
+    organic: "Biologique",
+    vegan: "Végétalien",
+
+    // Log Controls
+    addToLog: "➕ Ajouter au journal",
+    remove: "Supprimer",
+    todaysMeals: "Repas d'aujourd'hui",
+    noMealsYet: "Aucun repas aujourd'hui.",
     snapFirstBite: "Prenez votre première bouchée! 🍴",
-    
-    // Error messages
-    errorAnalyze: "Impossible d'analyser l'image. Essayez une photo plus claire!",
-    errorNetwork: "Erreur de connexion. Vérifiez votre internet.",
-    errorInvalidImage: "Image invalide. Essayez une autre photo.",
-    
-    // Meal types
-    breakfast: "Déjeuner",
-    lunch: "Dîner",
-    dinner: "Souper",
-    snack: "Collation",
-    
-    // Barcode scanning
-    scanBarcode: "Scanner un code-barres",
-    barcodeScanner: "Lecteur de code-barres",
-    photoMode: "Mode photo",
-    scanMode: "Mode scan",
-    pointCamera: "Pointez la caméra vers le code-barres",
-    noBarcodeDetected: "Aucun code-barres détecté. Essayez à nouveau.",
-    productFound: "Produit trouvé!",
-    nutritionInfo: "Informations nutritionnelles",
-    barcodeScanError: "Erreur de numérisation. Vérifiez l'image.",
-    uploadReceipt: "Ou téléchargez une image du code-barres",
-    
-    // Analytics
-    analytics: "Analyses",
+
+    // Favorites
+    favorites: "Favoris",
+
+    // AI Suggestions
+    aiSuggestions: "✨ Suggestions de l'IA",
+    getSuggestions: "Obtenir des suggestions",
+    refresh: "Rafraîchir",
+
+    // Analytics Tabs
     today: "Aujourd'hui",
     week: "Semaine",
     month: "Mois",
-    avgDaily: "Moyenne quotidienne",
-    weekTotal: "Total de la semaine",
-    goalMet: "Objectif atteint",
-    weeklyAvg: "Moyennes hebdomadaires",
-    monthTotal: "Total du mois",
-    goalsMet: "Objectifs atteints",
-    weeklyOverview: "Aperçu hebdomadaire",
-    monthlyOverview: "Aperçu mensuel",
-    
-    // Navigation
-    home: "Accueil",
-    history: "Historique",
-    stats: "Statistiques",
-    profile: "Profil",
-    
+
+    // Achievements
+    badges: "Badges & Réalisations",
+    streak: "🔥 Séquence",
+    totalMeals: "Total des repas",
+    unlocked: "Débloqué!",
+
+    // Workouts
+    logWorkout: "➕ Noter un entraînement",
+    burned: "Brûlées",
+    netCalories: "Calories nettes",
+    exerciseName: "Nom de l'exercice",
+    durationMin: "Durée (min)",
+    intensity: "Intensité",
+    light: "Légère",
+    moderate: "Modérée",
+    intense: "Intense",
+
+    // Water
+    waterGoal: "Objectif d'eau",
+    glasses: "verres",
+    dailyGoalReached: "✓ Objectif quotidien atteint!",
+
+    // Meal Planner
+    generatePlan: "Générer un plan",
+    regenerate: "🔄 Régénérer",
+    saveAsTemplate: "Enregistrer comme modèle",
+    dietaryRestrictions: "Restrictions alimentaires",
+
+    // Grocery Scanner (Standalone)
+    groceryDeepDive: "Analyse approfondie",
+    safetyAlert: "Alerte de sécurité",
+    compatible: "Compatible avec votre profil",
+    conflict: "Conflit détecté",
+    shoppingList: "Liste d'épicerie",
+    addToCart: "➕ Ajouter à la liste",
+    compare: "⚖️ Comparer",
+
     // Settings
-    language: "Langue",
-    french: "Français",
-    english: "English",
-    dailyGoal: "Objectif quotidien",
-    notifications: "Notifications",
-    premium: "Premium",
-    
-    // Premium
-    upgradeToPremium: "Passer à Premium",
-    unlimitedScans: "Scans illimités",
-    mealPlanning: "Planification de repas",
-    advancedAnalytics: "Analyses avancées",
-    priceMonthly: "9,99 $ CAD/mois",
-    priceYearly: "79,99 $ CAD/an",
+    profile: "Profil",
+    preferences: "Préférences",
+    saveSettings: "Enregistrer les paramètres",
+    accountDeleted: "Compte supprimé.",
+
+    // Form / Auth
+    login: "Connexion",
+    signup: "Créer un compte",
+    name: "Nom",
+    email: "Courriel",
+    password: "Mot de passe",
+    dontHaveAccount: "Pas de compte?",
+    alreadyHaveAccount: "Déjà un compte?",
+    startFreeTrial: "Essai gratuit",
+    tagline: "Prédisez votre progrès avec l'IA de précision",
+    landingTitle: "Chaque bouchée compte. *Rendez-les magnifiques.*",
+    landingSubtitle: "Nutrition propulsée par l'IA, enveloppée dans un design artisanal. Privé. Bilingue. Zéro cloud.",
+    heroTitle: "Prédisez votre progrès avec l'IA de précision",
+    heroSubtitle: "Prenez une photo, suivez votre vie et obtenez un physique premium avec KalTrac 2.0.",
+    visionEngine: "Moteur de Vision",
+    visionDesc: "Enregistrez des repas complets en quelques secondes avec la vision moondream.",
+    deepScan: "Analyse Profonde",
+    deepScanDesc: "Analyse d'ingrédients, Nutri-Score et alertes de sécurité pour chaque code-barres.",
+    aiPlanning: "Planification IA",
+    aiPlanningDesc: "Plans de repas personnalisés générés localement sur votre machine. 100% privé.",
+    guestMode: "MODE INVITÉ : VOS DONNÉES SONT ENREGISTRÉES LOCALEMENT.",
+    signUpToCloud: "CRÉEZ UN COMPTE POUR SYNCHRONISER.",
+    exportData: "Exporter les données",
+    downloadCSV: "Télécharger toutes les données (CSV)",
+    exportFormat: "Format : Date · Repas · Calories · P/G/L · Source",
+    dailyGoals: "Objectifs Quotidiens",
+    updateTargets: "Mettre à jour les cibles",
+    syncing: "Synchronisation...",
+    back: "Retour",
+    macros: "Macros",
+    kcal: "kcal",
+    proteinAbbr: "P",
+    carbsAbbr: "G",
+    fatAbbr: "L",
+    errorNotFound: "Produit non trouvé.",
+    clearCompleted: "Effacer terminés",
+    emptyList: "Liste vide. Commencez à scanner en mode Épicerie!",
+    totalEstimated: "Total estimé :",
+    noMealsYet: "Aucun repas aujourd'hui.",
+    snapFirstBite: "Prenez en photo votre première bouchée!",
+    ingredients: "Ingrédients :",
+    unlocked: "DÉBLOQUÉ",
+    tapToPhoto: "Appuyez pour prendre une photo",
+    identifyCalories: "Identifier Calories",
+    changePhoto: "Changer photo",
+    openScanner: "Ouvrir le Scan",
+    manualEntry: "Saisie manuelle du code-barres",
+    lookup: "Rechercher",
+    whatsInside: "Qu'est-ce qu'il y a dedans?",
+    saveAsTemplate: "Enregistrer comme modèle",
+    regenerate: "Régénérer",
+    addToLog: "Ajouter au journal",
+    generatePlan: "Générer mon plan",
+    unlockedCaps: "DÉBLOQUÉ",
+    light: "Léger",
+    moderate: "Modéré",
+    intense: "Intense",
+    kcalCaps: "KCAL",
+    composition: "Composition",
+    streak3: "Séquence de 3 jours",
+    macroMaster: "Maître des Macros",
+    hydroHero: "Héros de l'Eau",
+    ironWarrior: "Guerrier de Fer",
+
+    // Error messages
+    errorAnalyze: "Erreur lors de l'analyse.",
+    errorAuth: "Courriel ou mot de passe invalide.",
+    errorNetwork: "Vérifiez votre connexion.",
+    privacyFirst: "Confidentialité Totale",
+    bilingual: "Bilingue (FR/EN)",
+    quebecOptimized: "Optimisé pour le Québec.",
+    footerText: "© 2026 KalTrac — Conçu pour le Fitness Avancé. Système de Design de Luxe v2.0.",
+    activeStats: "Statistiques actives",
+    energyBurned: "Énergie brûlée par le mouvement aujourd'hui",
+    todaysSessions: "Sessions d'aujourd'hui",
+    stayHydrated: "Restez hydraté, maximisez la performance",
+    goalTargets: "Cibles d'objectif :",
+    glassesConsumed: "Verres consommés",
+    yourJourney: "Votre parcours jusqu'à présent",
+    weeklyComparison: "Comparaison hebdomadaire",
+    achievements: "Réalisations",
+    claudeMealPlanning: "Planification alimentaire IA",
+    personalizedFuel: "Carburant personnalisé basé sur votre cible de {{goal}} kcal et {{count}} restrictions.",
+    recentScans: "Scans récents",
+    productComparison: "⚖️ Comparaison de produits",
+    clearComparison: "Effacer la comparaison",
+    ingredientsDeepDive: "Analyse approfondie des ingrédients",
+    scanItemB: "Scanner l'article B",
+    itemA: "Article A",
+    itemB: "Article B",
+    empty: "vide",
+    nutriscoreGrade: "Nutri-Score :",
+    novaGroupGrade: "Groupe NOVA :",
     
     // Onboarding
-    welcome: "Bienvenue sur Kaltrac",
-    welcomeSubtitle: "Prenez une photo, connaissez vos calories",
-    getStarted: "Commencer",
-    whatIsYourGoal: "Quel est votre objectif?",
-    loseWeight: "Perdre du poids",
-    maintainWeight: "Maintenir mon poids",
-    gainWeight: "Prendre du poids",
-    
-    // Profile
-    personalInfo: "Informations personnelles",
-    age: "Âge",
-    gender: "Sexe",
-    height: "Taille",
-    weight: "Poids",
-    activityLevel: "Niveau d'activité",
-    sedentary: "Sédentaire",
-    lightlyActive: "Légèrement actif",
-    moderatelyActive: "Modérément actif",
-    veryActive: "Très actif",
-    
-    // Common
-    save: "Enregistrer",
-    cancel: "Annuler",
-    delete: "Supprimer",
-    edit: "Modifier",
-    confirm: "Confirmer",
-    back: "Retour",
+    onb1Title: "Snap. *Savoir. Nourrir.*",
+    onb1Sub: "Votre repas, analysé en secondes.",
+    onb1Accent: "IA privée qui ne quitte jamais votre appareil",
+    onb2Title: "Scannez. *Révélez. Comprenez.*",
+    onb2Sub: "Code-barres vers analyse en un seul tap.",
+    onb2Accent: "Ingrédients, allergènes, Nutri-Score — tout révélé",
+    onb3Title: "Conçu *autour de vous.*",
+    onb3Sub: "Conscient du cycle. Bilingue. Fait avec soin.",
+    onb3Accent: "Choisissez votre style",
+    chooseLeather: "Choisissez votre cuir",
+    chooseLanguage: "Choisissez votre langue",
+    beginJourney: "Commencer",
     next: "Suivant",
-    done: "Terminé",
-    
-    // Quebec-specific foods
+    skip: "Passer",
+
+    // Quebec-specific terms
     poutine: "Poutine",
     tourtiere: "Tourtière",
     cretons: "Cretons",
-    tarte_au_sucre: "Tarte au sucre",
     smoked_meat: "Smoked meat",
     bagel_montreal: "Bagel de Montréal",
   },
   
   en: {
     // App branding
-    appName: "Kaltrac",
+    appName: "KalTrac",
     tagline: "Daily Calorie Tracker",
-    
-    // Progress ring
+    logoText: "KalTrac",
+
+    // Navigation Tabs
+    track: "Track",
+    analytics: "Analytics",
+    workouts: "Workouts",
+    water: "Water",
+    mealPlans: "Meal Plans",
+    grocery: "🛒 Grocery",
+    export: "Export",
+    settings: "Settings",
+    logout: "Logout",
+
+    // Progress
     kcalEaten: "kcal eaten",
     goal: "Goal",
     eaten: "Eaten",
     remaining: "Remaining",
-    mealsLogged: "Meals logged",
+    done: "Done",
     kcal: "kcal",
-    
-    // Upload zone
-    tapToPhoto: "Tap to photograph your food",
-    dragDrop: "or drag & drop an image here",
-    changePhoto: "Change Photo",
-    identifyCalories: "Identify & Count Calories",
-    analyzing: "Analyzing...",
-    
-    // Result card
+    dailyGoal: "Daily Goal",
+
+    // Macros
     protein: "Protein",
     carbs: "Carbs",
     fat: "Fat",
-    addToLog: "+ Add to Today's Log",
-    
-    // Food log
-    todaysLog: "Today's Log",
-    noMealsYet: "No meals logged yet.",
+    sugar: "Sugar",
+    fiber: "Fiber",
+
+    // Modes
+    photoMode: "📷 Photo",
+    barcodeMode: "🔲 Barcode",
+
+    // Photo Analysis
+    tapToPhoto: "Snap your meal",
+    dragDrop: "or drag & drop here",
+    changePhoto: "Change photo",
+    identifyCalories: "🔍 Identify & Count",
+    analyzing: "AI Analyzing...",
+    identifySuccess: "Analysis complete!",
+    aiNote: "AI Note",
+    ingredients: "Ingredients",
+
+    // Barcode Scanning
+    openScanner: "🔲 Open Scanner",
+    pointCamera: "Point at barcode",
+    barcodeFound: "✓ Barcode found!",
+    manualEntry: "Manual entry",
+    lookup: "Look up",
+    scanAnother: "↩ Scan another",
+
+    // Product Details
+    servingSize: "Serving size",
+    servings: "Servings",
+    whatsInside: "🔬 What's inside?",
+    allergens: "⚠️ Allergens",
+    additives: "Additives",
+    nutriscore: "Nutri-Score",
+    novaGroup: "NOVA Group",
+    processingLevel: "Processing level",
+    organic: "Organic",
+    vegan: "Vegan",
+
+    // Log Controls
+    addToLog: "➕ Add to log",
+    remove: "Remove",
+    todaysMeals: "Today's Meals",
+    noMealsYet: "No meals today.",
     snapFirstBite: "Snap your first bite! 🍴",
-    
-    // Error messages
-    errorAnalyze: "Could not analyze image. Try a clearer photo!",
-    errorNetwork: "Connection error. Check your internet.",
-    errorInvalidImage: "Invalid image. Try another photo.",
-    
-    // Meal types
-    breakfast: "Breakfast",
-    lunch: "Lunch",
-    dinner: "Dinner",
-    snack: "Snack",
-    
-    // Barcode scanning
-    scanBarcode: "Scan Barcode",
-    barcodeScanner: "Barcode Scanner",
-    photoMode: "Photo Mode",
-    scanMode: "Scan Mode",
-    pointCamera: "Point camera at barcode",
-    noBarcodeDetected: "No barcode detected. Try again.",
-    productFound: "Product found!",
-    nutritionInfo: "Nutrition Information",
-    barcodeScanError: "Scan error. Check the image.",
-    uploadReceipt: "Or upload a barcode image",
-    
-    // Analytics
-    analytics: "Analytics",
+
+    // Favorites
+    favorites: "Favorites",
+
+    // AI Suggestions
+    aiSuggestions: "✨ AI Suggestions",
+    getSuggestions: "Get suggestions",
+    refresh: "Refresh",
+
+    // Analytics Tabs
     today: "Today",
     week: "Week",
     month: "Month",
-    avgDaily: "Avg Daily",
-    weekTotal: "Week Total",
-    goalMet: "Goal Met",
-    weeklyAvg: "Weekly Averages",
-    monthTotal: "Month Total",
-    goalsMet: "Goals Met",
-    weeklyOverview: "Weekly Overview",
-    monthlyOverview: "Monthly Overview",
-    
-    // Navigation
-    home: "Home",
-    history: "History",
-    stats: "Stats",
-    profile: "Profile",
-    
+
+    // Achievements
+    badges: "Badges & Achievements",
+    streak: "🔥 Streak",
+    totalMeals: "Total meals",
+    unlocked: "Unlocked!",
+
+    // Workouts
+    logWorkout: "➕ Log workout",
+    burned: "Burned",
+    netCalories: "Net calories",
+    exerciseName: "Exercise name",
+    durationMin: "Duration (min)",
+    intensity: "Intensity",
+    light: "Light",
+    moderate: "Moderate",
+    intense: "Intense",
+
+    // Water
+    waterGoal: "Water Goal",
+    glasses: "glasses",
+    dailyGoalReached: "✓ Daily goal reached!",
+
+    // Meal Planner
+    generatePlan: "Generate Plan",
+    regenerate: "🔄 Regenerate",
+    saveAsTemplate: "Save as template",
+    dietaryRestrictions: "Dietary restrictions",
+
+    // Grocery Scanner (Standalone)
+    groceryDeepDive: "Deep dive",
+    safetyAlert: "Safety alert",
+    compatible: "Compatible with profile",
+    conflict: "Conflict detected",
+    shoppingList: "Shopping List",
+    addToCart: "➕ Add to list",
+    compare: "⚖️ Compare",
+
     // Settings
-    language: "Language",
-    french: "Français",
-    english: "English",
-    dailyGoal: "Daily Goal",
-    notifications: "Notifications",
-    premium: "Premium",
-    
-    // Premium
-    upgradeToPremium: "Upgrade to Premium",
-    unlimitedScans: "Unlimited scans",
-    mealPlanning: "Meal planning",
-    advancedAnalytics: "Advanced analytics",
-    priceMonthly: "$9.99 CAD/month",
-    priceYearly: "$79.99 CAD/year",
+    profile: "Profile",
+    preferences: "Preferences",
+    saveSettings: "Save settings",
+    accountDeleted: "Account deleted.",
+
+    // Form / Auth
+    login: "Login",
+    signup: "Sign up",
+    name: "Name",
+    email: "Email",
+    password: "Password",
+    dontHaveAccount: "No account?",
+    alreadyHaveAccount: "Already have an account?",
+    startFreeTrial: "Start Free Trial",
+    tagline: "Predict Your Progress with Precision AI",
+    landingTitle: "Every Bite Counts. *Make Them Beautiful.*",
+    landingSubtitle: "AI-powered nutrition wrapped in artisan craft. Private. Bilingual. Zero cloud.",
+    heroTitle: "Predict Your Progress with Precision AI",
+    heroSubtitle: "Snap a photo, track your life, and achieve a premium physique with KalTrac 2.0.",
+    visionEngine: "Vision Engine",
+    visionDesc: "Log entire meals in seconds using moondream vision. No searching required.",
+    deepScan: "Deep Scan",
+    deepScanDesc: "Ingredient analysis, Nutri-Score, and safety alerts for every barcode.",
+    aiPlanning: "AI Planning",
+    aiPlanningDesc: "Tailored meal plans generated locally on your machine. 100% private.",
+    guestMode: "GUEST MODE: YOUR DATA IS SAVED LOCALLY.",
+    signUpToCloud: "SIGN UP TO SAVE CLOUD.",
+    exportData: "Export Data",
+    downloadCSV: "Download All Data (CSV)",
+    exportFormat: "Format: Date · Meal · Calories · P/C/F · Source",
+    dailyGoals: "Daily Goals",
+    updateTargets: "Update Goal Targets",
+    syncing: "Syncing...",
+    back: "Back",
+    macros: "Macros",
+    kcal: "kcal",
+    proteinAbbr: "P",
+    carbsAbbr: "C",
+    fatAbbr: "F",
+    errorNotFound: "Product not found.",
+    clearCompleted: "Clear Completed",
+    emptyList: "Empty list. Start scanning in Grocery mode!",
+    totalEstimated: "Total estimated:",
+    noMealsYet: "No meals yet today.",
+    snapFirstBite: "Snap your first bite!",
+    ingredients: "Ingredients:",
+    unlocked: "UNLOCKED",
+    tapToPhoto: "Tap to take a photo",
+    identifyCalories: "Identify Calories",
+    changePhoto: "Change photo",
+    openScanner: "Open Scanner",
+    manualEntry: "Manual barcode entry",
+    lookup: "Lookup",
+    whatsInside: "What's Inside?",
+    saveAsTemplate: "Save as Template",
+    regenerate: "Regenerate",
+    addToLog: "Add to Log",
+    generatePlan: "Generate Plan",
+    unlockedCaps: "UNLOCKED",
+    light: "Light",
+    moderate: "Moderate",
+    intense: "Intense",
+    kcalCaps: "KCAL",
+    composition: "Composition",
+    streak3: "3 Day Streak",
+    macroMaster: "Macro Master",
+    hydroHero: "Hydro Hero",
+    ironWarrior: "Iron Warrior",
+
+    // Error messages
+    errorAnalyze: "Analysis error.",
+    privacyFirst: "Privacy First",
+    bilingual: "Bilingual (FR/EN)",
+    quebecOptimized: "Optimized for Quebec.",
+    footerText: "© 2026 KalTrac — Built for Advanced Fitness. Luxury Design System v2.0.",
+    errorAuth: "Invalid email or password.",
+    errorNetwork: "Check your connection.",
+    activeStats: "Active Stats",
+    energyBurned: "Energy burned through movement today",
+    todaysSessions: "Today's Sessions",
+    stayHydrated: "Stay hydrated, maximize performance",
+    goalTargets: "Goal targets:",
+    glassesConsumed: "Glasses consumed",
+    yourJourney: "Your Journey so far",
+    weeklyComparison: "Weekly Comparison",
+    achievements: "Achievements",
+    claudeMealPlanning: "AI Meal Planning",
+    personalizedFuel: "Personalized fuel based on your {{goal}} kcal target and {{count}} restrictions.",
+    recentScans: "Recent Scans",
+    productComparison: "⚖️ Product Comparison",
+    clearComparison: "Clear Comparison",
+    ingredientsDeepDive: "Ingredients Deep-Dive",
+    scanItemB: "Scan Item B",
+    itemA: "Item A",
+    itemB: "Item B",
+    empty: "empty",
+    nutriscoreGrade: "Nutri-Score:",
+    novaGroupGrade: "Nova Group:",
     
     // Onboarding
-    welcome: "Welcome to Kaltrac",
-    welcomeSubtitle: "Snap a photo, know your calories",
-    getStarted: "Get Started",
-    whatIsYourGoal: "What is your goal?",
-    loseWeight: "Lose weight",
-    maintainWeight: "Maintain weight",
-    gainWeight: "Gain weight",
-    
-    // Profile
-    personalInfo: "Personal Information",
-    age: "Age",
-    gender: "Gender",
-    height: "Height",
-    weight: "Weight",
-    activityLevel: "Activity Level",
-    sedentary: "Sedentary",
-    lightlyActive: "Lightly Active",
-    moderatelyActive: "Moderately Active",
-    veryActive: "Very Active",
-    
-    // Common
-    save: "Save",
-    cancel: "Cancel",
-    delete: "Delete",
-    edit: "Edit",
-    confirm: "Confirm",
-    back: "Back",
+    onb1Title: "Snap. *Know. Nourish.*",
+    onb1Sub: "Your meal, analyzed in seconds.",
+    onb1Accent: "Private AI that never leaves your device",
+    onb2Title: "Scan. *Reveal. Understand.*",
+    onb2Sub: "Barcode to breakdown in one tap.",
+    onb2Accent: "Ingredients, allergens, Nutri-Score — all revealed",
+    onb3Title: "Designed *around you.*",
+    onb3Sub: "Cycle-aware. Bilingual. Crafted with care.",
+    onb3Accent: "Choose your style",
+    chooseLeather: "Choose your leather",
+    chooseLanguage: "Choose your language",
+    beginJourney: "Begin",
     next: "Next",
-    done: "Done",
-    
-    // Quebec-specific foods
+    skip: "Skip",
+
+    // Quebec-specific terms
     poutine: "Poutine",
-    tourtiere: "Tourtière",
+    tourtiere: "Tourtiere",
     cretons: "Cretons",
-    tarte_au_sucre: "Sugar pie",
     smoked_meat: "Smoked meat",
     bagel_montreal: "Montreal bagel",
   }
 };
 
-// Hook for using translations
 export const useTranslation = (language = 'fr') => {
   const t = (key) => {
     return translations[language]?.[key] || translations.fr[key] || key;

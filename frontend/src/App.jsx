@@ -1,349 +1,286 @@
-import { useState, useCallback, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "./i18n/translations";
 import { useCalorieTracker } from "./hooks/useCalorieTracker";
-import { analyzeFood } from "./services/deepseekAPI";
-import { authAPI, settingsAPI } from "./services/api";
-import { Header } from "./components/Header";
-import { CalorieRing } from "./components/CalorieRing";
-import { PhotoUpload } from "./components/PhotoUpload";
-import { AnalysisResult } from "./components/AnalysisResult";
-import { MealLog } from "./components/MealLog";
-import BarcodeScanner from "./components/BarcodeScanner";
-import { AnalyticsDashboard } from "./components/AnalyticsDashboard";
-import { LoginSignup } from "./components/LoginSignup";
-import { Settings } from "./components/Settings";
-import { Favorites } from "./components/Favorites";
-import { WorkoutLogger } from "./components/WorkoutLogger";
-import { WaterTracker } from "./components/WaterTracker";
-import { MealPlanning } from "./components/MealPlanning";
-import { ExportData } from "./components/ExportData";
+import { Header } from "./components/v2/Header";
+import { TrackerPage } from "./components/v2/TrackerPage";
+import { AnalyticsPage } from "./components/v2/AnalyticsPage";
+import { WorkoutsPage } from "./components/v2/WorkoutsPage";
+import { WaterPage } from "./components/v2/WaterPage";
+import { MealPlannerPage } from "./components/v2/MealPlannerPage";
+import { GroceryScannerPage } from "./components/v2/GroceryScannerPage";
+import { LoginPage } from "./components/v2/LoginPage";
+import { LandingPage } from "./components/v2/LandingPage";
+import { OnboardingPage } from "./components/v2/OnboardingPage";
+import { ThemeSelector } from "./components/v2/ThemeSelector";
 import "./styles/app.css";
 
 export default function App() {
-  const [language, setLanguage] = useState("en");
-  const { t } = useTranslation(language);
-  
-  // Auth state
-  const [user, setUser] = useState(null);
-  const [userSettings, setUserSettings] = useState({
-    daily_calorie_goal: 2000,
-    daily_protein_goal: 150,
-    daily_carbs_goal: 250,
-    daily_fat_goal: 65,
-    dietary_restrictions: []
-  });
-
-  // UI state
-  const [navMode, setNavMode] = useState("tracker");
-  const [mode, setMode] = useState("photo");
-
-  // Calorie tracker state
   const {
-    result,
-    setResult,
-    addToLog,
-    removeFromLog,
-    getTotalCalories,
-    getCaloriePercentage,
-    getTodayLog,
-    getWeeklyData,
-    getMonthlyData,
+    user,
+    setUser,
+    log,
+    workouts,
+    water,
+    settings,
+    loading,
+    syncing,
+    logout,
+    addMeal,
+    removeMeal,
+    addWorkout,
+    removeWorkout,
+    updateWater,
+    updateSettings,
+    getWeeklyStats,
+    loadData
   } = useCalorieTracker();
 
-  // Food analysis state
-  const [image, setImage] = useState(null);
-  const [analyzing, setAnalyzing] = useState(false);
-  const [error, setError] = useState(null);
-
-  // Check auth on mount
-  useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    const userData = localStorage.getItem('user');
-    if (token && userData) {
-      setUser(JSON.parse(userData));
-      loadUserSettings();
-    }
-  }, []);
-
-  const loadUserSettings = async () => {
-    try {
-      const res = await settingsAPI.getSettings();
-      setUserSettings(res.data);
-    } catch (error) {
-      console.error('Failed to load settings', error);
-    }
+  const [activeTab, setActiveTab] = useState("track");
+  
+  // Auto-detect Quebec/French Locale
+  const detectInitialLanguage = () => {
+    if (settings.language) return settings.language;
+    const browserLang = navigator.language || '';
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (browserLang.includes('fr') || timeZone.includes('Montreal')) return 'fr';
+    return 'en';
   };
 
-  const handleAuthSuccess = (userData) => {
+  const [language, setLanguage] = useState(detectInitialLanguage());
+  const [view, setView] = useState("landing"); // 'landing', 'login', 'app'
+  const [isTrial, setIsTrial] = useState(false);
+  const [leatherTheme, setLeatherTheme] = useState(() => localStorage.getItem('kaltrac-theme') || 'brown');
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useState(() => localStorage.getItem('kaltrac-onboarded') === 'true');
+  const { t } = useTranslation(language);
+
+  // Apply leather theme to document
+  useEffect(() => {
+    if (leatherTheme === 'brown') {
+      document.documentElement.removeAttribute('data-theme');
+    } else {
+      document.documentElement.setAttribute('data-theme', leatherTheme);
+    }
+    localStorage.setItem('kaltrac-theme', leatherTheme);
+  }, [leatherTheme]);
+
+  // Sync language with settings and document
+  useEffect(() => {
+    if (settings.language) {
+      setLanguage(settings.language);
+    }
+    document.documentElement.lang = language;
+  }, [settings.language, language]);
+
+  // Handle View Logic
+  useEffect(() => {
+    if (user) {
+      setView("app");
+      setIsTrial(false);
+    } else if (isTrial) {
+      setView("app");
+    } else if (view !== "login") {
+      setView("landing");
+    }
+  }, [user, isTrial, view]);
+
+  const handleLanguageChange = (lang) => {
+    setLanguage(lang);
+    if (user) updateSettings({ ...settings, language: lang });
+  };
+
+  const handleLoginSuccess = (userData) => {
     setUser(userData);
-    loadUserSettings();
+    loadData();
+    setView("app");
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
-    setUser(null);
-    setNavMode('tracker');
+    logout();
+    setIsTrial(false);
+    setView("landing");
   };
 
-  // Photo analysis handlers
-  const handleImageChange = useCallback((newImage) => {
-    setImage(newImage);
-    setError(null);
-  }, []);
-
-  const handleImageRemove = useCallback(() => {
-    setImage(null);
-    setResult(null);
-    setError(null);
-  }, [setResult]);
-
-  const handleAnalyze = useCallback(async () => {
-    if (!image) return;
-    setAnalyzing(true);
-    setError(null);
-
-    try {
-      const base64Image = image.split(",")[1];
-      const foodData = await analyzeFood(base64Image);
-      setResult({
-        name: foodData.name,
-        calories: foodData.calories,
-        protein: foodData.protein,
-        carbs: foodData.carbs,
-        fat: foodData.fat,
-        note: foodData.note,
-        image: image,
-      });
-    } catch (err) {
-      setError(err.message || "Failed to analyze food. Please try again.");
-    } finally {
-      setAnalyzing(false);
+  const handleTabChange = (tab) => {
+    if (!user && (tab === 'settings' || tab === 'login')) {
+      setView('login');
+    } else {
+      setActiveTab(tab);
     }
-  }, [image, setResult]);
-
-  const handleAddToLog = useCallback(() => {
-    if (result) {
-      addToLog(result);
-      setImage(null);
-      setResult(null);
-    }
-  }, [result, addToLog, setResult]);
-
-  const handleBarcodeProductSelect = useCallback((productData) => {
-    addToLog({
-      name: productData.name,
-      calories: productData.calories,
-      protein: productData.protein,
-      carbs: productData.carbs,
-      fat: productData.fat,
-      note: `From barcode: ${productData.productData?.brand || 'Unknown'}`,
-      source: 'barcode'
-    });
-    setError(null);
-  }, [addToLog]);
-
-  const handleFavoriteSelect = (favorite) => {
-    addToLog(favorite);
   };
 
-  if (!user) {
-    return <LoginSignup onAuthSuccess={handleAuthSuccess} />;
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
+        <div className="loading"></div>
+      </div>
+    );
   }
 
-  const totalCals = getTotalCalories();
-  const percentage = getCaloriePercentage();
+  // View Routing
+  if (!hasSeenOnboarding && !user) {
+    return <OnboardingPage
+      language={language}
+      onLanguageChange={setLanguage}
+      leatherTheme={leatherTheme}
+      onThemeChange={setLeatherTheme}
+      onComplete={() => {
+        setHasSeenOnboarding(true);
+        localStorage.setItem('kaltrac-onboarded', 'true');
+      }}
+    />;
+  }
+
+  if (view === "landing" && !user) {
+    return <LandingPage 
+      onStartTrial={() => setIsTrial(true)} 
+      onGoToLogin={() => setView("login")} 
+      language={language}
+      leatherTheme={leatherTheme}
+      onThemeChange={setLeatherTheme}
+    />;
+  }
+
+  if (view === "login" && !user) {
+    return (
+      <div style={{ position: 'relative' }}>
+         <button 
+           className="btn btn-ghost" 
+           style={{ position: 'absolute', top: 20, left: 20, zIndex: 100 }}
+           onClick={() => setView("landing")}
+         >
+           ← {t('back')}
+         </button>
+         <LoginPage onLoginSuccess={handleLoginSuccess} language={language} />
+      </div>
+    );
+  }
 
   return (
     <div className="app">
-      {/* Navigation Bar */}
-      <nav className="navbar">
-        <div className="nav-left">
-          <h1 className="logo">KalTrac</h1>
+      {isTrial && (
+        <div style={{ 
+          background: 'var(--gold)', 
+          color: '#000', 
+          fontSize: '11px', 
+          textAlign: 'center', 
+          padding: '6px', 
+          fontWeight: 'bold',
+          letterSpacing: '0.5px' 
+        }}>
+          {t('guestMode')} <span style={{ textDecoration: 'underline', cursor: 'pointer' }} onClick={() => setView("login")}>{t('signUpToCloud')}</span>
         </div>
-        <div className="nav-center">
-          <button 
-            onClick={() => setNavMode('tracker')} 
-            className={`nav-btn ${navMode === 'tracker' ? 'active' : ''}`}
-          >
-            📊 Track
-          </button>
-          <button 
-            onClick={() => setNavMode('analytics')} 
-            className={`nav-btn ${navMode === 'analytics' ? 'active' : ''}`}
-          >
-            📈 Analytics
-          </button>
-          <button 
-            onClick={() => setNavMode('workouts')} 
-            className={`nav-btn ${navMode === 'workouts' ? 'active' : ''}`}
-          >
-            💪 Workouts
-          </button>
-          <button 
-            onClick={() => setNavMode('water')} 
-            className={`nav-btn ${navMode === 'water' ? 'active' : ''}`}
-          >
-            💧 Water
-          </button>
-          <button 
-            onClick={() => setNavMode('planning')} 
-            className={`nav-btn ${navMode === 'planning' ? 'active' : ''}`}
-          >
-            🍽️ Plans
-          </button>
-          <button 
-            onClick={() => setNavMode('export')} 
-            className={`nav-btn ${navMode === 'export' ? 'active' : ''}`}
-          >
-            📥 Export
-          </button>
+      )}
+      <Header
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        language={language}
+        onLanguageChange={handleLanguageChange}
+        user={user}
+        onLogout={handleLogout}
+      />
+
+      <main className="content">
+        {activeTab === "track" && (
+          <TrackerPage 
+            user={user} 
+            log={log} 
+            goals={settings} 
+            onAddMeal={addMeal} 
+            onRemoveMeal={removeMeal}
+            language={language} 
+          />
+        )}
+
+        {activeTab === "analytics" && (
+          <AnalyticsPage 
+            log={log} 
+            weeklyData={getWeeklyStats()} 
+            monthlyData={getWeeklyStats()} 
+            goals={settings} 
+            language={language} 
+          />
+        )}
+
+        {activeTab === "workouts" && (
+          <WorkoutsPage 
+            log={workouts} 
+            onAddWorkout={addWorkout} 
+            onRemoveWorkout={removeWorkout} 
+            language={language} 
+          />
+        )}
+
+        {activeTab === "water" && (
+          <WaterPage 
+            current={water} 
+            goal={settings.daily_water_goal} 
+            onUpdate={updateWater} 
+            language={language} 
+          />
+        )}
+
+        {activeTab === "mealPlans" && (
+          <MealPlannerPage 
+            goals={settings} 
+            userSettings={settings} 
+            language={language} 
+            onAddMeal={addMeal} 
+          />
+        )}
+
+        {activeTab === "grocery" && (
+          <GroceryScannerPage 
+            language={language} 
+            userSettings={settings} 
+          />
+        )}
+
+        {activeTab === "export" && (
+          <div className="card animate-in" style={{ textAlign: 'center', padding: '60px' }}>
+            <h2 className="serif" style={{ fontSize: '32px', marginBottom: '24px' }}>{t('exportData')}</h2>
+             <button className="btn btn-primary" onClick={() => alert('CSV Export Started...')}>📥 {t('downloadCSV')}</button>
+             <p style={{ marginTop: '24px', fontSize: '12px', color: 'var(--muted)' }}>{t('exportFormat')}</p>
+          </div>
+        )}
+
+        {activeTab === "settings" && (
+          <div className="settings-view animate-in">
+             <div className="card">
+               <h2 className="serif">{t('dailyGoals')}</h2>
+               <div className="macro-grid" style={{ marginTop: '20px' }}>
+                  <div className="form-group">
+                    <label>{t('kcal')} (kcal)</label>
+                    <input type="number" value={settings.daily_calorie_goal} onChange={(e) => updateSettings({ ...settings, daily_calorie_goal: Number(e.target.value) })} />
+                  </div>
+                  <div className="form-group">
+                    <label>{t('protein')} (g)</label>
+                    <input type="number" value={settings.daily_protein_goal} onChange={(e) => updateSettings({ ...settings, daily_protein_goal: Number(e.target.value) })} />
+                  </div>
+                  <div className="form-group">
+                    <label>{t('carbs')} (g)</label>
+                    <input type="number" value={settings.daily_carbs_goal} onChange={(e) => updateSettings({ ...settings, daily_carbs_goal: Number(e.target.value) })} />
+                  </div>
+                  <div className="form-group">
+                    <label>{t('fat')} (g)</label>
+                    <input type="number" value={settings.daily_fat_goal} onChange={(e) => updateSettings({ ...settings, daily_fat_goal: Number(e.target.value) })} />
+                  </div>
+                  <div className="form-group">
+                    <label>{t('waterGoal')} ({t('glasses')})</label>
+                    <input type="number" value={settings.daily_water_goal} onChange={(e) => updateSettings({ ...settings, daily_water_goal: Number(e.target.value) })} />
+                  </div>
+               </div>
+               <button className="btn btn-primary" style={{ marginTop: '32px', width: '100%' }}>{t('updateTargets')}</button>
+             </div>
+          </div>
+        )}
+      </main>
+
+      {syncing && (
+        <div style={{ position: 'fixed', bottom: '100px', right: '20px', background: 'var(--surface)', padding: '8px 16px', borderRadius: '20px', border: '1px solid var(--border)', fontSize: '12px', zIndex: 10000 }}>
+           <span className="loading" style={{ marginRight: '8px', verticalAlign: 'middle' }}></span>
+           {t('syncing')}
         </div>
-        <div className="nav-right">
-          <button onClick={() => setNavMode('settings')} className="settings-btn">⚙️</button>
-          <button onClick={handleLogout} className="logout-btn">Logout</button>
-          <div className="user-info">{user.name}</div>
-        </div>
-      </nav>
-
-      {/* Main Content */}
-      <div className="content">
-        <Header language={language} onLanguageChange={setLanguage} />
-
-        {navMode === 'tracker' && (
-          <>
-            {/* Calorie Ring Card */}
-            <div className="ring-card">
-              <div className="ring-section">
-                <div className="ring-wrap">
-                  <CalorieRing
-                    totalCals={totalCals}
-                    percentage={percentage}
-                    dailyGoal={userSettings.daily_calorie_goal}
-                    language={language}
-                  />
-                </div>
-                <div className="ring-stats">
-                  <div className="stat">
-                    <span className="stat-value">{Math.round(totalCals)}</span>
-                    <span className="stat-label">Eaten</span>
-                  </div>
-                  <div className="stat">
-                    <span className="stat-value">{Math.round(userSettings.daily_calorie_goal - totalCals)}</span>
-                    <span className="stat-label">Left</span>
-                  </div>
-                  <div className="stat">
-                    <span className="stat-value">{Math.round(percentage)}%</span>
-                    <span className="stat-label">Done</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Mode Toggle */}
-            <div className="mode-toggle">
-              <button 
-                onClick={() => setMode("photo")} 
-                className={`mode-btn ${mode === "photo" ? "active" : ""}`}
-              >
-                📷 Photo Mode
-              </button>
-              <button 
-                onClick={() => setMode("barcode")} 
-                className={`mode-btn ${mode === "barcode" ? "active" : ""}`}
-              >
-                📱 Barcode Scan
-              </button>
-            </div>
-
-            {/* Photo or Barcode Input */}
-            <div className="card">
-              {mode === "photo" ? (
-                <>
-                  <PhotoUpload
-                    image={image}
-                    onImageChange={handleImageChange}
-                    analyzing={analyzing}
-                    onAnalyze={handleAnalyze}
-                    onImageRemove={handleImageRemove}
-                    language={language}
-                  />
-                  {error && <div className="error-msg">⚠️ {error}</div>}
-                  <AnalysisResult result={result} onAddToLog={handleAddToLog} language={language} />
-                </>
-              ) : (
-                <>
-                  {error && <div className="error-msg">⚠️ {error}</div>}
-                  <BarcodeScanner
-                    language={language}
-                    t={t}
-                    onProductSelect={handleBarcodeProductSelect}
-                  />
-                </>
-              )}
-            </div>
-
-            {/* Favorites */}
-            <Favorites t={t} onSelectFavorite={handleFavoriteSelect} />
-
-            {/* Meal Log */}
-            <div className="card">
-              <h3 className="card-title">📝 Today's Meals</h3>
-              <MealLog log={getTodayLog()} onRemoveItem={removeFromLog} language={language} />
-            </div>
-          </>
-        )}
-
-        {navMode === 'analytics' && (
-          <div className="card">
-            <AnalyticsDashboard
-              log={getTodayLog()}
-              weeklyData={getWeeklyData()}
-              monthlyData={getMonthlyData()}
-              dailyGoal={userSettings.daily_calorie_goal}
-              t={t}
-            />
-          </div>
-        )}
-
-        {navMode === 'workouts' && (
-          <div className="card">
-            <WorkoutLogger t={t} />
-          </div>
-        )}
-
-        {navMode === 'water' && (
-          <div className="card">
-            <WaterTracker t={t} />
-          </div>
-        )}
-
-        {navMode === 'planning' && (
-          <div className="card">
-            <MealPlanning 
-              dailyGoal={userSettings.daily_calorie_goal} 
-              dietaryRestrictions={userSettings.dietary_restrictions} 
-              t={t} 
-            />
-          </div>
-        )}
-
-        {navMode === 'export' && (
-          <div className="card">
-            <ExportData t={t} weekData={getWeeklyData()} dailyGoal={userSettings.daily_calorie_goal} />
-          </div>
-        )}
-
-        {navMode === 'settings' && (
-          <div className="card">
-            <Settings 
-              language={language} 
-              t={t} 
-              onClose={() => setNavMode('tracker')} 
-            />
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { analyzeFood } from '../services/deepseekAPI';
+import { analyzeFood } from '../services/ollamaAPI';
 
 export function MealPlanning({ dailyGoal, dietaryRestrictions, t }) {
   const [loading, setLoading] = useState(false);

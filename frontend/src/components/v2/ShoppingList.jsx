@@ -44,10 +44,15 @@ export function ShoppingList({ language }) {
   const totalCalories = items.filter(i => !i.is_checked).reduce((sum, i) => sum + (i.calories_per_serving || 0), 0);
 
   return (
-    <div className="shopping-list card animate-in">
-       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h3 className="serif">{t('shoppingList')}</h3>
-          <button className="btn btn-ghost" style={{ fontSize: '10px' }} onClick={clearCompleted}>{t('clearCompleted')}</button>
+    <div className="shopping-list card animate-in" style={{ padding: '0', overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}>
+       <div className="strap" style={{ borderTopLeftRadius: "14px", borderTopRightRadius: "14px", borderTop: "none" }}>
+         <span className="fleur" style={{ marginLeft: '12px' }}>🛒</span>
+         <span className="strap-text" style={{ fontSize: '13px' }}>{t('shoppingList')}</span>
+       </div>
+       
+       <div style={{ padding: '24px' }}>
+       <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '16px' }}>
+          <button className="btn btn-ghost" style={{ fontSize: '11px', color: 'var(--muted)' }} onClick={clearCompleted}>{t('clearCompleted')}</button>
        </div>
 
        {loading ? (
@@ -74,6 +79,7 @@ export function ShoppingList({ language }) {
        <div style={{ marginTop: '24px', textAlign: 'right', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
           <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{t('totalEstimated')} </span>
           <span className="serif" style={{ fontSize: '18px', color: 'var(--gold)' }}>{totalCalories} {t('kcal')}</span>
+       </div>
        </div>
     </div>
   );

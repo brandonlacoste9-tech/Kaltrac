@@ -9,7 +9,7 @@ export function LandingPage({ onStartTrial, onGoToLogin, language, leatherTheme,
     if (!text) return null;
     return text.split('*').map((part, i) => (
       <React.Fragment key={i}>
-        {i % 2 === 1 ? <span style={{ color: 'var(--gold)' }}>{part}</span> : part}
+        {i % 2 === 1 ? <span style={{ color: 'var(--gold)', textShadow: '0 4px 16px var(--gold-glow)' }}>{part}</span> : part}
       </React.Fragment>
     ));
   };
@@ -73,7 +73,8 @@ export function LandingPage({ onStartTrial, onGoToLogin, language, leatherTheme,
             fontSize: 'clamp(42px, 8vw, 88px)', 
             lineHeight: '1.05', 
             marginBottom: 'var(--space-lg)',
-            letterSpacing: '-0.04em'
+            letterSpacing: '-0.04em',
+            textShadow: '0 4px 12px rgba(0,0,0,0.4)',
           }}>
              {renderHighlightedText(t('landingTitle'))}
           </h2>

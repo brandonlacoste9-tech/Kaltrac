@@ -96,7 +96,11 @@ export function GroceryScannerPage({ language, userSettings }) {
   return (
     <div className="grocery-page animate-in">
        {scannerOpen && (
-         <div className="card" style={{ padding: 0, overflow: 'hidden', marginBottom: '24px' }}>
+         <div className="card" style={{ padding: 0, overflow: 'hidden', marginBottom: '32px' }}>
+            <div className="strap" style={{ borderTopLeftRadius: "14px", borderTopRightRadius: "14px", borderTop: "none" }}>
+              <span className="fleur" style={{ marginLeft: '12px' }}>🔎</span>
+              <span className="strap-text" style={{ fontSize: '13px' }}>{t('scanner')}</span>
+            </div>
             <div className="scanner-viewport" style={{ position: 'relative', minHeight: '300px' }}>
               <Scanner
                 onScan={(res) => res && res[0] && handleScan(res[0].rawValue)}
@@ -104,7 +108,7 @@ export function GroceryScannerPage({ language, userSettings }) {
                 components={{ torch: true, finder: true }}
               />
               <div style={{ position: 'absolute', top: 10, right: 10 }}>
-                 <button className="btn btn-ghost" onClick={() => setScannerOpen(false)}>✕</button>
+                 <button className="btn btn-ghost" style={{ background: 'rgba(0,0,0,0.5)', border: 'none' }} onClick={() => setScannerOpen(false)}>✕</button>
               </div>
             </div>
          </div>
@@ -112,35 +116,42 @@ export function GroceryScannerPage({ language, userSettings }) {
 
        {product && !compareMode && (
          <div className="product-result animate-in">
-            <div className="card">
-               <div className="product-header" style={{ display: 'flex', gap: '20px' }}>
-                  <img src={product.image_url} alt="" style={{ width: '100px', height: '100px', objectFit: 'contain', borderRadius: '12px', background: 'var(--raised)' }} />
-                  <div>
-                     <small style={{ color: 'var(--blue)', textTransform: 'uppercase' }}>{product.brands}</small>
-                     <h2 className="serif">{product.product_name}</h2>
-                  </div>
+            <div className="card" style={{ padding: '0', overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}>
+               <div className="strap" style={{ borderTopLeftRadius: "14px", borderTopRightRadius: "14px", borderTop: "none" }}>
+                 <span className="fleur" style={{ marginLeft: '12px' }}>🥑</span>
+                 <span className="strap-text" style={{ fontSize: '13px' }}>{t('productDetails', 'Product Details')}</span>
                </div>
                
-               <div className="scores-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', margin: '20px 0' }}>
-                  <ScoreBadge type="nutriscore" value={product.nutriscore_grade} label={t('nutriscore')} />
-                  <ScoreBadge type="nova" value={product.nova_group} label={t('novaGroup')} />
-               </div>
+               <div style={{ padding: '32px' }}>
+                 <div className="product-header" style={{ display: 'flex', gap: '20px' }}>
+                    <img src={product.image_url} alt="" style={{ width: '100px', height: '100px', objectFit: 'contain', borderRadius: '12px', background: 'var(--raised)', padding: '8px', border: '1px solid var(--border)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)' }} />
+                    <div style={{ flex: 1 }}>
+                       <small style={{ color: 'var(--gold)', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '11px', fontWeight: 600 }}>{product.brands}</small>
+                       <h2 className="serif" style={{ fontSize: '24px', color: 'var(--text)', marginTop: '4px' }}>{product.product_name}</h2>
+                    </div>
+                 </div>
+                 
+                 <div className="scores-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', margin: '24px 0' }}>
+                    <ScoreBadge type="nutriscore" value={product.nutriscore_grade} label={t('nutriscore')} />
+                    <ScoreBadge type="nova" value={product.nova_group} label={t('novaGroup')} />
+                 </div>
 
-               {/* Safety Report */}
-               {safetyReport && <SafetyPanel report={safetyReport} t={t} />}
+                 {/* Safety Report */}
+                 {safetyReport && <SafetyPanel report={safetyReport} t={t} />}
 
-               <div className="ingredients">
-                  <h4 className="serif" style={{ fontSize: '14px', marginBottom: '10px' }}>{t('ingredientsDeepDive')}</h4>
-                  <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                     {product.ingredients?.slice(0, 15).map(renderIngredientPill)}
-                  </div>
-               </div>
+                 <div className="ingredients" style={{ marginTop: '24px' }}>
+                    <h4 className="serif" style={{ fontSize: '16px', marginBottom: '12px', color: 'var(--gold)' }}>{t('ingredientsDeepDive')}</h4>
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                       {product.ingredients?.slice(0, 15).map(renderIngredientPill)}
+                    </div>
+                 </div>
 
-               <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-                  <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => shoppingAPI.addItem(product)}>
-                    {t('addToCart')}
-                  </button>
-                  <button className="btn btn-ghost" onClick={() => setCompareMode(true)}>⚖️ {t('compare')}</button>
+                 <div style={{ display: 'flex', gap: '16px', marginTop: '32px' }}>
+                    <button className="btn btn-primary" style={{ flex: 1, fontSize: '16px' }} onClick={() => shoppingAPI.addItem(product)}>
+                      {t('addToCart')}
+                    </button>
+                    <button className="btn btn-ghost" style={{ fontSize: '16px' }} onClick={() => setCompareMode(true)}>⚖️ {t('compare')}</button>
+                 </div>
                </div>
             </div>
          </div>

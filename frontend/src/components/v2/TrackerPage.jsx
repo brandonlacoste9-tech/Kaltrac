@@ -107,12 +107,16 @@ export function TrackerPage({ user, log, goals, onAddMeal, onRemoveMeal, languag
       {analyzing && <div className="loading-overlay"><div className="loading"></div></div>}
       <CalorieRing eaten={totalEaten} goal={goals.daily_calorie_goal} language={language} />
 
-      <div className="card macro-bars">
-        <h3 className="serif" style={{ marginBottom: '16px', fontSize: '18px' }}>{t('macros')}</h3>
-        <div className="macro-grid">
+      <div className="card" style={{ padding: '0', overflow: 'hidden', marginBottom: '32px' }}>
+         <div className="strap" style={{ borderTopLeftRadius: "14px", borderTopRightRadius: "14px", borderTop: "none" }}>
+           <span className="fleur" style={{ marginLeft: '12px' }}>⚜</span>
+           <span className="strap-text" style={{ fontSize: '13px' }}>{t('macros')}</span>
+         </div>
+        
+        <div className="macro-grid" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
            <MacroBar label={t('protein')} current={totalProtein} goal={goals.daily_protein_goal} color="var(--green)" unit="g" t={t} />
            <MacroBar label={t('carbs')} current={totalCarbs} goal={goals.daily_carbs_goal} color="var(--blue)" unit="g" t={t} />
-           <MacroBar label={t('fat')} current={totalFat} goal={goals.daily_fat_goal} color="var(--pink)" unit="g" t={t} />
+           <MacroBar label={t('fat')} current={totalFat} goal={goals.daily_fat_goal} color="var(--gold)" unit="g" t={t} />
         </div>
       </div>
 
@@ -126,61 +130,78 @@ export function TrackerPage({ user, log, goals, onAddMeal, onRemoveMeal, languag
       </div>
 
       {mode === 'photo' ? (
-        <div className="card photo-input">
-          {!photo ? (
-            <div className="upload-zone" onClick={() => fileInputRef.current?.click()}>
-              <span className="camera-icon">📷</span>
-              <p>{t('tapToPhoto')}</p>
-              <input type="file" hidden ref={fileInputRef} accept="image/*" capture="environment" onChange={handlePhotoUpload} />
+        <div className="card photo-input" style={{ padding: '0', overflow: 'hidden' }}>
+          <div className="strap" style={{ borderTopLeftRadius: "14px", borderTopRightRadius: "14px", borderTop: "none" }}>
+            <div className="buckle">
+              <div className="buckle-prong"></div>
             </div>
-          ) : (
-            <div className="photo-preview-container">
-              <img src={photo} alt="Preview" style={{ borderRadius: '10px', width: '100%', maxHeight: '300px', objectFit: 'cover' }} />
-              <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-                <button className="btn btn-primary" onClick={handleAnalyzePhoto} disabled={analyzing}>
-                   {analyzing ? t('analyzing') : t('identifyCalories')}
-                </button>
-                <button className="btn btn-ghost" onClick={() => setPhoto(null)}>
-                  {t('changePhoto')}
-                </button>
+            <span className="strap-text" style={{ fontSize: '13px' }}>{t('photoMode')}</span>
+          </div>
+
+          <div style={{ padding: '32px' }}>
+            {!photo ? (
+              <div className="upload-zone" onClick={() => fileInputRef.current?.click()} style={{ border: '2px dashed var(--border)', borderRadius: '16px', padding: '40px', textAlign: 'center', cursor: 'pointer', background: 'var(--raised)', transition: 'var(--transition)' }}>
+                <span className="camera-icon" style={{ fontSize: '48px', opacity: 0.8, filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.5))' }}>📷</span>
+                <p className="serif" style={{ marginTop: '16px', fontSize: '20px', color: 'var(--gold)' }}>{t('tapToPhoto')}</p>
+                <input type="file" hidden ref={fileInputRef} accept="image/*" capture="environment" onChange={handlePhotoUpload} />
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="photo-preview-container animate-in">
+                <div style={{ padding: '8px', background: 'var(--raised)', borderRadius: '16px', border: '1px solid var(--border)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)' }}>
+                  <img src={photo} alt="Preview" style={{ borderRadius: '10px', width: '100%', maxHeight: '300px', objectFit: 'cover' }} />
+                </div>
+                <div style={{ display: 'flex', gap: '16px', marginTop: '24px' }}>
+                  <button className="btn btn-primary" style={{ flex: 1 }} onClick={handleAnalyzePhoto} disabled={analyzing}>
+                     {analyzing ? t('analyzing') : t('identifyCalories')}
+                  </button>
+                  <button className="btn btn-ghost" onClick={() => setPhoto(null)}>
+                    {t('changePhoto')}
+                  </button>
+                </div>
+              </div>
+            )}
 
           {error && <p className="text-red" style={{ marginTop: '12px' }}>⚠️ {error}</p>}
 
           {result && result.source === 'photo' && (
-            <div className="result-card animate-in" style={{ marginTop: '24px', padding: '16px', background: 'var(--raised)', borderRadius: '12px' }}>
-              <h2 className="serif">{result.name}</h2>
-              <div className="result-main" style={{ display: 'flex', alignItems: 'center', gap: '16px', margin: '12px 0' }}>
-                <span style={{ fontSize: '32px', color: 'var(--gold)' }} className="serif">{result.calories} <small style={{ fontSize: '14px' }}>{t('kcal')}</small></span>
+            <div className="result-card animate-in" style={{ marginTop: '32px', padding: '24px', background: 'var(--raised)', borderRadius: '16px', border: '1px solid var(--border)', boxShadow: '0 8px 24px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.05)' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px' }}>
+                 <h2 className="serif" style={{ fontSize: '28px', color: 'var(--text)', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))' }}>{result.name}</h2>
+                 <span style={{ fontSize: '32px', color: 'var(--gold)', textShadow: '0 2px 8px var(--gold-glow)' }} className="serif">{result.calories} <small style={{ fontSize: '14px', fontFamily: 'var(--font-body)', fontStyle: 'italic', color: 'var(--muted)' }}>{t('kcal')}</small></span>
               </div>
               
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '24px' }}>
                 <span className="tag-pill green">{t('proteinAbbr')}: {result.protein}g</span>
                 <span className="tag-pill blue">{t('carbsAbbr')}: {result.carbs}g</span>
-                <span className="tag-pill pink">{t('fatAbbr')}: {result.fat}g</span>
+                <span className="tag-pill gold">{t('fatAbbr')}: {result.fat}g</span>
               </div>
 
               {result.ingredients && (
-                <div style={{ marginBottom: '12px' }}>
-                  <p style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '4px' }}>{t('ingredients')}</p>
-                  <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                    {result.ingredients.map(ing => <span key={ing} className="tag-pill" style={{ fontSize: '10px' }}>{ing}</span>)}
+                <div style={{ marginBottom: '16px', padding: '16px', background: 'var(--surface)', borderRadius: '8px', border: '1px dashed var(--border)' }}>
+                  <p style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>{t('ingredients')}</p>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                    {result.ingredients.map(ing => <span key={ing} className="tag-pill" style={{ opacity: 0.8 }}>{ing}</span>)}
                   </div>
                 </div>
               )}
 
-              {result.note && <p style={{ fontStyle: 'italic', fontSize: '13px', color: 'var(--muted)' }}>“{result.note}”</p>}
+              {result.note && <p style={{ fontStyle: 'italic', fontSize: '14px', color: 'var(--gold)', opacity: 0.8, padding: '12px', borderLeft: '3px solid var(--gold)', background: 'rgba(197, 160, 85, 0.05)' }}>“{result.note}”</p>}
 
-              <button className="btn btn-primary" style={{ width: '100%', marginTop: '20px' }} onClick={handleAddResult}>
+              <button className="btn btn-primary" style={{ width: '100%', marginTop: '24px', fontSize: '16px' }} onClick={handleAddResult}>
                 {t('addToLog')}
               </button>
             </div>
           )}
+          </div>
         </div>
       ) : (
-         <div className="card barcode-input">
+         <div className="card barcode-input" style={{ padding: '0', overflow: 'hidden' }}>
+            <div className="strap" style={{ borderTopLeftRadius: "14px", borderTopRightRadius: "14px", borderTop: "none" }}>
+              <span className="fleur" style={{ marginLeft: '12px' }}>🔎</span>
+              <span className="strap-text" style={{ fontSize: '13px' }}>{t('barcodeMode')}</span>
+            </div>
+            
+            <div style={{ padding: '32px' }}>
            {!scannerOpen ? (
              <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => setScannerOpen(true)}>
                 {t('openScanner')}
@@ -214,49 +235,61 @@ export function TrackerPage({ user, log, goals, onAddMeal, onRemoveMeal, languag
            </div>
 
            {result && result.source === 'barcode' && (
-             <div className="result-card animate-in" style={{ marginTop: '24px', padding: '16px', background: 'var(--raised)', borderRadius: '12px' }}>
-               <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '12px' }}>
-                 {result.image_url && <img src={result.image_url} style={{ width: '60px', height: '60px', objectFit: 'contain' }} />}
-                 <h2 className="serif" style={{ fontSize: '18px' }}>{result.name}</h2>
+             <div className="result-card animate-in" style={{ marginTop: '32px', padding: '24px', background: 'var(--raised)', borderRadius: '16px', border: '1px solid var(--border)', boxShadow: '0 8px 24px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.05)' }}>
+               <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginBottom: '16px' }}>
+                 {result.image_url && <img src={result.image_url} style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '8px', background: 'var(--surface)', padding: '4px', border: '1px solid var(--border)' }} />}
+                 <div>
+                   <h2 className="serif" style={{ fontSize: '22px', color: 'var(--text)' }}>{result.name}</h2>
+                   <div className="serif" style={{ fontSize: '28px', color: 'var(--gold)', textShadow: '0 2px 8px var(--gold-glow)' }}>{result.calories} <small style={{ fontSize: '14px', fontFamily: 'var(--font-body)', color: 'var(--muted)' }}>{t('kcal')}</small></div>
+                 </div>
                </div>
-               <div className="serif" style={{ fontSize: '24px', color: 'var(--gold)', marginBottom: '12px' }}>{result.calories} {t('kcal')}</div>
-               <button className="btn btn-primary" style={{ width: '100%' }} onClick={handleAddResult}>
+               <button className="btn btn-primary" style={{ width: '100%', fontSize: '16px' }} onClick={handleAddResult}>
                  {t('addToLog')}
                </button>
              </div>
            )}
+           </div>
          </div>
       )}
 
       {/* Today's Log */}
-      <div className="card meal-log">
-        <h3 className="serif" style={{ marginBottom: '16px' }}>{t('todaysMeals')}</h3>
-        {log.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '24px', color: 'var(--muted)' }}>
-            <p>{t('noMealsYet')}</p>
-            <p style={{ marginTop: '8px' }}>{t('snapFirstBite')}</p>
-          </div>
-        ) : (
-          <div className="meal-list">
-            {log.map(meal => (
-              <div key={meal.id} className="meal-item animate-in" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0', borderBottom: '1px solid var(--border)' }}>
-                <div style={{ width: '40px', height: '40px', background: 'var(--raised)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyItems: 'center', fontSize: '20px', justifyContent: 'center' }}>
-                  {meal.source === 'barcode' ? '🔲' : '📷'}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <h4 style={{ fontSize: '15px' }}>{meal.name}</h4>
-                  <div style={{ fontSize: '11px', color: 'var(--muted)' }}>
-                    {t('proteinAbbr')}: {meal.protein}g · {t('carbsAbbr')}: {meal.carbs}g · {t('fatAbbr')}: {meal.fat}g
+      <div className="card meal-log" style={{ padding: '0', overflow: 'hidden', marginTop: '32px' }}>
+        <div className="strap" style={{ borderTopLeftRadius: "14px", borderTopRightRadius: "14px", borderTop: "none" }}>
+           <span className="fleur" style={{ marginLeft: '12px' }}>🍽️</span>
+           <span className="strap-text" style={{ fontSize: '13px' }}>{t('todaysMeals')}</span>
+        </div>
+        
+        <div style={{ padding: '24px' }}>
+          {log.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px 24px', color: 'var(--muted)' }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.5 }}>🥗</div>
+              <p className="serif" style={{ fontSize: '20px', color: 'var(--gold)' }}>{t('noMealsYet')}</p>
+              <p style={{ marginTop: '8px', fontSize: '14px' }}>{t('snapFirstBite')}</p>
+            </div>
+          ) : (
+            <div className="meal-list" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {log.map(meal => (
+                <div key={meal.id} className="meal-item animate-in" style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', background: 'var(--raised)', borderRadius: '12px', border: '1px solid var(--border)', boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.02)' }}>
+                  <div style={{ width: '48px', height: '48px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyItems: 'center', fontSize: '24px', justifyContent: 'center', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)' }}>
+                    {meal.source === 'barcode' ? '🔲' : '📷'}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <h4 className="serif" style={{ fontSize: '18px', color: 'var(--text)' }}>{meal.name}</h4>
+                    <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px', display: 'flex', gap: '8px' }}>
+                      <span style={{ color: 'var(--green)' }}>{meal.protein}g {t('proteinAbbr')}</span> · 
+                      <span style={{ color: 'var(--blue)' }}>{meal.carbs}g {t('carbsAbbr')}</span> · 
+                      <span style={{ color: 'var(--gold)' }}>{meal.fat}g {t('fatAbbr')}</span>
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div className="serif" style={{ color: 'var(--gold)', fontSize: '24px', textShadow: '0 2px 8px var(--gold-glow)' }}>{meal.calories}</div>
+                    <button onClick={() => onRemoveMeal(meal.id)} style={{ background: 'none', border: 'none', color: 'var(--red)', fontSize: '16px', cursor: 'pointer', opacity: 0.7, padding: '4px' }}>✕</button>
                   </div>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ color: 'var(--gold)', fontWeight: 'bold' }}>{meal.calories}</div>
-                  <button onClick={() => onRemoveMeal(meal.id)} style={{ background: 'none', border: 'none', color: 'var(--red)', fontSize: '10px', cursor: 'pointer' }}>✕</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
     </div>
@@ -267,12 +300,12 @@ function MacroBar({ label, current, goal, color, unit, t }) {
   const percentage = Math.min((current / goal) * 100, 100);
   return (
     <div className="macro-item">
-      <div className="macro-header">
-        <span style={{ color: color, fontWeight: 'bold' }}>{label}</span>
-        <span style={{ color: 'var(--muted)' }}>{Math.round(current)}{unit} / {goal}{unit}</span>
+      <div className="macro-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>
+        <span style={{ color: color, textShadow: color === 'var(--gold)' ? '0 2px 4px var(--gold-glow)' : 'none' }}>{label}</span>
+        <span style={{ color: 'var(--muted)' }}><span style={{ color: 'var(--text)' }}>{Math.round(current)}</span> / {goal} {unit}</span>
       </div>
-      <div className="macro-bar-bg">
-        <div className="macro-bar-fill" style={{ width: `${percentage}%`, background: color }}></div>
+      <div className="macro-bar-bg" style={{ height: '14px', background: 'var(--dim)', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)' }}>
+        <div className="macro-bar-fill" style={{ width: `${percentage}%`, height: '100%', background: color, borderRadius: '8px', boxShadow: `0 0 10px ${color}80`, transition: 'width 1s cubic-bezier(0.4, 0, 0.2, 1)' }}></div>
       </div>
     </div>
   );

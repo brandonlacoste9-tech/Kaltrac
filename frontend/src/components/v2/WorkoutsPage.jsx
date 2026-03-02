@@ -57,16 +57,25 @@ export function WorkoutsPage({ log, onAddWorkout, onRemoveWorkout, language }) {
 
   return (
     <div className="workouts-page animate-in">
-      <div className="card" style={{ textAlign: 'center', padding: '32px' }}>
-        <h2 className="serif" style={{ fontSize: '32px', color: 'var(--gold)', marginBottom: '8px' }}>{t('activeStats')}</h2>
-        <p style={{ fontSize: '14px', color: 'var(--muted)' }}>{t('energyBurned')}</p>
-        <div style={{ marginTop: '24px' }}>
-           <span className="serif" style={{ fontSize: '42px', color: 'var(--gold)' }}>{totalBurned}</span> <span className="serif" style={{ fontSize: '18px', color: 'var(--muted)' }}>{t('kcal')}</span>
+      <div className="card" style={{ padding: '0', overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.5)', marginBottom: '32px' }}>
+        <div className="strap" style={{ borderTopLeftRadius: "14px", borderTopRightRadius: "14px", borderTop: "none" }}>
+           <span className="fleur" style={{ marginLeft: '12px' }}>🔥</span>
+           <span className="strap-text" style={{ fontSize: '13px' }}>{t('activeStats')}</span>
+        </div>
+        <div style={{ textAlign: 'center', padding: '48px 32px' }}>
+          <h2 className="serif" style={{ fontSize: '18px', color: 'var(--muted)', marginBottom: '8px', letterSpacing: '2px', textTransform: 'uppercase' }}>{t('energyBurned')}</h2>
+          <div style={{ marginTop: '16px' }}>
+             <span className="serif" style={{ fontSize: '56px', color: 'var(--gold)', textShadow: '0 4px 12px var(--gold-glow)' }}>{totalBurned}</span> <span className="serif" style={{ fontSize: '20px', color: 'var(--muted)' }}>{t('kcal')}</span>
+          </div>
         </div>
       </div>
 
-      <div className="card">
-        <h3 className="serif" style={{ marginBottom: '20px' }}>{t('logWorkout')}</h3>
+      <div className="card" style={{ padding: '0', overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.5)', marginBottom: '32px' }}>
+        <div className="strap" style={{ borderTopLeftRadius: "14px", borderTopRightRadius: "14px", borderTop: "none" }}>
+           <span className="fleur" style={{ marginLeft: '12px' }}>🏋️</span>
+           <span className="strap-text" style={{ fontSize: '13px' }}>{t('logWorkout')}</span>
+        </div>
+        <div style={{ padding: '32px' }}>
         <form onSubmit={handleSubmit}>
           <div className="form-group" style={{ marginBottom: '16px' }}>
              <label style={{ fontSize: '12px', color: 'var(--muted)', display: 'block', marginBottom: '8px' }}>{t('exerciseName')}</label>
@@ -100,15 +109,20 @@ export function WorkoutsPage({ log, onAddWorkout, onRemoveWorkout, language }) {
              </div>
           </div>
 
-          <button className="btn btn-primary" type="submit" disabled={loading} style={{ width: '100%' }}>
+          <button className="btn btn-primary" type="submit" disabled={loading} style={{ width: '100%', fontSize: '16px', padding: '16px' }}>
              {loading ? '...' : t('logWorkout')}
           </button>
         </form>
+        </div>
       </div>
 
       {log.length > 0 && (
-          <div className="card animate-in">
-            <h3 className="serif" style={{ marginBottom: '16px' }}>{t('todaysSessions')}</h3>
+          <div className="card animate-in" style={{ padding: '0', overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}>
+            <div className="strap" style={{ borderTopLeftRadius: "14px", borderTopRightRadius: "14px", borderTop: "none" }}>
+               <span className="fleur" style={{ marginLeft: '12px' }}>🗓️</span>
+               <span className="strap-text" style={{ fontSize: '13px' }}>{t('todaysSessions')}</span>
+            </div>
+            <div style={{ padding: '24px' }}>
             {log.map(w => (
                <div key={w.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid var(--border)' }}>
                   <div>
@@ -121,6 +135,7 @@ export function WorkoutsPage({ log, onAddWorkout, onRemoveWorkout, language }) {
                   </div>
                </div>
             ))}
+            </div>
           </div>
       )}
     </div>

@@ -236,40 +236,52 @@ export default function App() {
         )}
 
         {activeTab === "export" && (
-          <div className="card animate-in" style={{ textAlign: 'center', padding: '60px' }}>
-            <h2 className="serif" style={{ fontSize: '32px', marginBottom: '24px' }}>{t('exportData')}</h2>
-             <button className="btn btn-primary" onClick={() => alert('CSV Export Started...')}>📥 {t('downloadCSV')}</button>
-             <p style={{ marginTop: '24px', fontSize: '12px', color: 'var(--muted)' }}>{t('exportFormat')}</p>
+          <div className="card animate-in" style={{ padding: '0', overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}>
+            <div className="strap" style={{ borderTopLeftRadius: "14px", borderTopRightRadius: "14px", borderTop: "none" }}>
+               <span className="fleur" style={{ marginLeft: '12px' }}>📥</span>
+               <span className="strap-text" style={{ fontSize: '13px' }}>{t('exportData', 'Export Data')}</span>
+            </div>
+            <div style={{ padding: '60px 40px', textAlign: 'center', background: 'var(--surface)' }}>
+               <h2 className="serif" style={{ fontSize: '32px', marginBottom: '32px', color: 'var(--gold)', textShadow: '0 2px 8px var(--gold-glow)' }}>{t('exportData')}</h2>
+               <button className="btn btn-primary" style={{ padding: '16px 32px', fontSize: '16px' }} onClick={() => alert('CSV Export Started...')}>📥 {t('downloadCSV')}</button>
+               <p style={{ marginTop: '32px', fontSize: '13px', color: 'var(--muted)' }}>{t('exportFormat')}</p>
+            </div>
           </div>
         )}
 
         {activeTab === "settings" && (
           <div className="settings-view animate-in">
-             <div className="card">
-               <h2 className="serif">{t('dailyGoals')}</h2>
-               <div className="macro-grid" style={{ marginTop: '20px' }}>
-                  <div className="form-group">
-                    <label>{t('kcal')} (kcal)</label>
-                    <input type="number" value={settings.daily_calorie_goal} onChange={(e) => updateSettings({ ...settings, daily_calorie_goal: Number(e.target.value) })} />
-                  </div>
-                  <div className="form-group">
-                    <label>{t('protein')} (g)</label>
-                    <input type="number" value={settings.daily_protein_goal} onChange={(e) => updateSettings({ ...settings, daily_protein_goal: Number(e.target.value) })} />
-                  </div>
-                  <div className="form-group">
-                    <label>{t('carbs')} (g)</label>
-                    <input type="number" value={settings.daily_carbs_goal} onChange={(e) => updateSettings({ ...settings, daily_carbs_goal: Number(e.target.value) })} />
-                  </div>
-                  <div className="form-group">
-                    <label>{t('fat')} (g)</label>
-                    <input type="number" value={settings.daily_fat_goal} onChange={(e) => updateSettings({ ...settings, daily_fat_goal: Number(e.target.value) })} />
-                  </div>
-                  <div className="form-group">
-                    <label>{t('waterGoal')} ({t('glasses')})</label>
-                    <input type="number" value={settings.daily_water_goal} onChange={(e) => updateSettings({ ...settings, daily_water_goal: Number(e.target.value) })} />
-                  </div>
+             <div className="card" style={{ padding: '0', overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}>
+               <div className="strap" style={{ borderTopLeftRadius: "14px", borderTopRightRadius: "14px", borderTop: "none" }}>
+                 <span className="fleur" style={{ marginLeft: '12px' }}>⚙️</span>
+                 <span className="strap-text" style={{ fontSize: '13px' }}>{t('settings', 'Settings')}</span>
                </div>
-               <button className="btn btn-primary" style={{ marginTop: '32px', width: '100%' }}>{t('updateTargets')}</button>
+               <div style={{ padding: '32px' }}>
+                 <h2 className="serif" style={{ marginBottom: '24px', fontSize: '24px', color: 'var(--gold)' }}>{t('dailyGoals')}</h2>
+                 <div className="macro-grid" style={{ marginTop: '20px', gap: '20px' }}>
+                    <div className="form-group">
+                      <label style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>{t('kcal')} (kcal)</label>
+                      <input type="number" value={settings.daily_calorie_goal} onChange={(e) => updateSettings({ ...settings, daily_calorie_goal: Number(e.target.value) })} style={{ fontSize: '16px', padding: '12px', marginTop: '8px' }} />
+                    </div>
+                    <div className="form-group">
+                      <label style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>{t('protein')} (g)</label>
+                      <input type="number" value={settings.daily_protein_goal} onChange={(e) => updateSettings({ ...settings, daily_protein_goal: Number(e.target.value) })} style={{ fontSize: '16px', padding: '12px', marginTop: '8px' }} />
+                    </div>
+                    <div className="form-group">
+                      <label style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>{t('carbs')} (g)</label>
+                      <input type="number" value={settings.daily_carbs_goal} onChange={(e) => updateSettings({ ...settings, daily_carbs_goal: Number(e.target.value) })} style={{ fontSize: '16px', padding: '12px', marginTop: '8px' }} />
+                    </div>
+                    <div className="form-group">
+                      <label style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>{t('fat')} (g)</label>
+                      <input type="number" value={settings.daily_fat_goal} onChange={(e) => updateSettings({ ...settings, daily_fat_goal: Number(e.target.value) })} style={{ fontSize: '16px', padding: '12px', marginTop: '8px' }} />
+                    </div>
+                    <div className="form-group">
+                      <label style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>{t('waterGoal')} ({t('glasses')})</label>
+                      <input type="number" value={settings.daily_water_goal} onChange={(e) => updateSettings({ ...settings, daily_water_goal: Number(e.target.value) })} style={{ fontSize: '16px', padding: '12px', marginTop: '8px' }} />
+                    </div>
+                 </div>
+                 <button className="btn btn-primary" style={{ marginTop: '40px', width: '100%', padding: '16px', fontSize: '16px' }}>{t('updateTargets')}</button>
+               </div>
              </div>
           </div>
         )}

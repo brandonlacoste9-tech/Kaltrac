@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import bcrypt from 'bcrypt';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DB_DIR = path.join(__dirname, '..', 'data');
@@ -22,6 +21,8 @@ const EMPTY_DB = {
   favorites: [],
   shopping_list: [],
   grocery_cache: [],
+  subscriptions: [],
+  ai_usage: [],
 };
 
 function loadDB() {
@@ -71,6 +72,35 @@ export async function query(text, params = []) {
     return { rows: user ? [user] : [], rowCount: user ? 1 : 0 };
   }
 
+  // ======= BILLING: SUBSCRIPTIONS =======
+  if (sql.startsWith('SELECT') && sql.includes('FROM SUBSCRIPTIONS')) {
+    const userId = params[0];
+    const rows = db.subscriptions
+      .filter(s => s.user_id === userId || s.user_id === Number(userId) || s.user_id === String(userId))
+      .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    return { rows: rows.slice(0, 1), rowCount: rows.length ? 1 : 0 };
+  }
+
+  if (sql.startsWith('INSERT INTO SUBSCRIPTIONS')) {
+    const [userId, stripeCustomerId, stripeSubscriptionId, status, currentPeriodEnd] = params;
+    const existingIdx = db.subscriptions.findIndex(s => s.stripe_subscription_id === stripeSubscriptionId);
+    const now = new Date().toISOString();
+    const row = {
+      id: Date.now(),
+      user_id: userId,
+      stripe_customer_id: stripeCustomerId,
+      stripe_subscription_id: stripeSubscriptionId,
+      status,
+      current_period_end: currentPeriodEnd,
+      created_at: existingIdx >= 0 ? db.subscriptions[existingIdx].created_at : now,
+      updated_at: now,
+    };
+    if (existingIdx >= 0) db.subscriptions[existingIdx] = { ...db.subscriptions[existingIdx], ...row };
+    else db.subscriptions.push(row);
+    saveDB(db);
+    return { rows: [row], rowCount: 1 };
+  }
+
   // ======= MEALS =======
   if (sql.startsWith('INSERT INTO MEALS')) {
     const meal = {
@@ -112,6 +142,32 @@ export async function query(text, params = []) {
     db.meals = db.meals.filter(m => m.id !== Number(id) && m.id !== id);
     saveDB(db);
     return { rows: [], rowCount: 1 };
+  }
+
+  // ======= AI USAGE (FREE TIER LIMITS) =======
+  if (sql.startsWith('SELECT') && sql.includes('FROM AI_USAGE')) {
+    const userKey = params[0];
+    const today = new Date().toISOString().split('T')[0];
+    const row = db.ai_usage.find(r => r.user_key === userKey && r.usage_date === today);
+    return { rows: row ? [row] : [], rowCount: row ? 1 : 0 };
+  }
+
+  if (sql.startsWith('INSERT INTO AI_USAGE')) {
+    const [userKey, usageDate, count] = params;
+    const idx = db.ai_usage.findIndex(r => r.user_key === userKey && r.usage_date === usageDate);
+    const now = new Date().toISOString();
+    const row = {
+      id: Date.now(),
+      user_key: userKey,
+      usage_date: usageDate,
+      count,
+      created_at: idx >= 0 ? db.ai_usage[idx].created_at : now,
+      updated_at: now,
+    };
+    if (idx >= 0) db.ai_usage[idx] = { ...db.ai_usage[idx], ...row };
+    else db.ai_usage.push(row);
+    saveDB(db);
+    return { rows: [row], rowCount: 1 };
   }
 
   // ======= WORKOUTS =======

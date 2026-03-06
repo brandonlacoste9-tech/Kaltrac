@@ -96,4 +96,11 @@ export const groceryCacheAPI = {
   set: (barcode, productData) => api.post('/grocery/cache', { barcode, productData }),
 };
 
+// Billing / Premium
+export const billingAPI = {
+  status: () => api.get('/billing/status'),
+  createCheckoutSession: () => api.post('/billing/create-checkout-session'),
+  createPortalSession: () => api.post('/billing/create-portal-session'),
+};
+
 export default api;

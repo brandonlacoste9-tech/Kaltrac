@@ -2,6 +2,8 @@ import express from 'express';
 import axios from 'axios';
 import { authenticateRequest } from '../middleware.js';
 import dotenv from 'dotenv';
+import { getBillingStatus } from '../billing-store.js';
+import { incrementDailyAiUsage } from '../usage.js';
 
 dotenv.config();
 
@@ -129,6 +131,34 @@ router.get('/health', async (req, res) => {
 router.post('/analyze', optionalAuth, async (req, res) => {
   const { imageBase64 } = req.body;
   if (!imageBase64) return res.status(400).json({ error: "No image provided" });
+
+  // Free tier limit: 3 analyses/day (Premium is unlimited)
+  try {
+    const userId = req.user?.id;
+    const isGuest = !userId || userId === 'guest';
+
+    let isPremium = false;
+    if (!isGuest) {
+      const billing = await getBillingStatus(userId);
+      isPremium = !!billing.isPremium;
+    }
+
+    if (!isPremium) {
+      const key = isGuest ? `guest:${req.ip || 'unknown'}` : `user:${userId}`;
+      const usage = await incrementDailyAiUsage(key);
+      const limit = 3;
+      if (usage.count > limit) {
+        return res.status(402).json({
+          error: 'Free tier limit reached',
+          code: 'FREE_TIER_LIMIT',
+          limitPerDay: limit,
+        });
+      }
+    }
+  } catch (e) {
+    // If usage tracking fails, do not block analysis (fail open)
+    console.warn('AI usage tracking failed:', e.message);
+  }
 
   // Try Gemini first
   try {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from '../../i18n/translations';
 
-export function Header({ activeTab, onTabChange, language, onLanguageChange, user, onLogout }) {
+export function Header({ activeTab, onTabChange, language, onLanguageChange, user, onLogout, billing, onUpgrade, onManageBilling }) {
   const { t } = useTranslation(language);
 
   const tabs = [
@@ -36,6 +36,28 @@ export function Header({ activeTab, onTabChange, language, onLanguageChange, use
       </div>
 
       <div className="nav-right">
+        {user && !billing?.isPremium && (
+          <button
+            className="btn btn-primary hide-mobile"
+            style={{ fontSize: '10px', padding: '6px 12px' }}
+            onClick={onUpgrade}
+            title="Upgrade to Premium"
+          >
+            Upgrade $9.99/mo
+          </button>
+        )}
+
+        {user && billing?.isPremium && (
+          <button
+            className="btn btn-ghost hide-mobile"
+            style={{ fontSize: '10px', padding: '6px 12px' }}
+            onClick={onManageBilling}
+            title="Manage billing"
+          >
+            Premium ✓
+          </button>
+        )}
+
         <button 
           className="btn-ghost" 
           style={{ padding: '4px 8px', fontSize: '11px' }}

@@ -14,6 +14,7 @@ import waterRoutes from './routes/water.js';
 import aiRoutes from './routes/ai.js';
 import shoppingListRoutes from './routes/shopping_list.js';
 import groceryRoutes from './routes/grocery.js';
+import billingRoutes, { stripeWebhookHandler, handleStripeEvent } from './routes/billing.js';
 
 dotenv.config();
 
@@ -26,6 +27,20 @@ app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true
 }));
+
+// Stripe webhook must use raw body (before express.json)
+app.post('/api/billing/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  try {
+    const sig = req.headers['stripe-signature'];
+    const event = stripeWebhookHandler(req.body, sig);
+    await handleStripeEvent(event);
+    res.json({ received: true });
+  } catch (err) {
+    console.error('Stripe webhook error:', err.message);
+    res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+});
+
 app.use(express.json({ limit: '50mb' })); // Increase limit for photo uploads
 
 // Health check
@@ -55,6 +70,7 @@ app.use('/api/water', waterRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/shopping-list', shoppingListRoutes);
 app.use('/api/grocery', groceryRoutes);
+app.use('/api/billing', billingRoutes);
 
 // Error handling
 app.use(errorHandler);

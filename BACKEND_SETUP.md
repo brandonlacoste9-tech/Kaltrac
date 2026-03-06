@@ -5,6 +5,8 @@
 - Node.js 18+
 - Neon PostgreSQL account
 - PostgreSQL client tools
+- Optional: Gemini API key (`GEMINI_API_KEY`) for best AI results
+- Optional: Ollama running locally (`OLLAMA_URL`, defaults to `http://localhost:11434/api/chat`)
 
 ## Setup Instructions
 
@@ -55,7 +57,6 @@ The API server will start on http://localhost:5000
 In `frontend/.env.local`:
 ```
 VITE_API_URL=http://localhost:5000/api
-VITE_DEEPSEEK_API_KEY=your_key_here
 ```
 
 Then start frontend:

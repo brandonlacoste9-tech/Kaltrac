@@ -12,6 +12,7 @@ import { LoginPage } from "./components/v2/LoginPage";
 import { LandingPage } from "./components/v2/LandingPage";
 import { OnboardingPage } from "./components/v2/OnboardingPage";
 import { ThemeSelector } from "./components/v2/ThemeSelector";
+import { billingAPI } from "./services/api";
 import "./styles/app.css";
 
 export default function App() {
@@ -51,6 +52,7 @@ export default function App() {
   const [isTrial, setIsTrial] = useState(false);
   const [leatherTheme, setLeatherTheme] = useState(() => localStorage.getItem('kaltrac-theme') || 'brown');
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState(() => localStorage.getItem('kaltrac-onboarded') === 'true');
+  const [billing, setBilling] = useState({ isPremium: false });
   const { t } = useTranslation(language);
 
   // Apply leather theme to document
@@ -68,7 +70,7 @@ export default function App() {
     if (settings.language && settings.language !== language) {
       setLanguage(settings.language);
     }
-  }, [settings.language]);
+  }, [settings.language, language]);
 
   useEffect(() => {
     document.documentElement.lang = language || 'en';
@@ -85,6 +87,31 @@ export default function App() {
       setView("landing");
     }
   }, [user, isTrial, view]);
+
+  // Load billing status (Premium)
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (!user || !token) {
+      setBilling({ isPremium: false });
+      return;
+    }
+
+    let cancelled = false;
+    billingAPI.status()
+      .then((res) => { if (!cancelled) setBilling(res.data || { isPremium: false }); })
+      .catch(() => { if (!cancelled) setBilling({ isPremium: false }); });
+    return () => { cancelled = true; };
+  }, [user]);
+
+  const handleUpgrade = async () => {
+    const res = await billingAPI.createCheckoutSession();
+    if (res.data?.url) window.location.href = res.data.url;
+  };
+
+  const handleManageBilling = async () => {
+    const res = await billingAPI.createPortalSession();
+    if (res.data?.url) window.location.href = res.data.url;
+  };
 
   const handleLanguageChange = (lang) => {
     setLanguage(lang);
@@ -189,6 +216,9 @@ export default function App() {
         onLanguageChange={handleLanguageChange}
         user={user}
         onLogout={handleLogout}
+        billing={billing}
+        onUpgrade={handleUpgrade}
+        onManageBilling={handleManageBilling}
       />
 
       <main className="content">

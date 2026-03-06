@@ -5,37 +5,46 @@ Quick setup instructions for running Kaltrac locally.
 ## Prerequisites
 
 - Node.js 18+ and npm
-- Anthropic API key ([Get one here](https://console.anthropic.com/))
+- Optional: **Gemini API key** (`GEMINI_API_KEY`) for best AI results
+- Optional: **Ollama** running locally for free offline AI (`OLLAMA_URL`, defaults to `http://localhost:11434/api/chat`)
 
 ## Installation Steps
 
 ### 1. Navigate to frontend directory
 ```bash
-cd Kaltrac/frontend
+cd Kaltrac
 ```
 
 ### 2. Install dependencies
 ```bash
-npm install
+cd backend && npm install
+cd ../frontend && npm install
 ```
 
 ### 3. Set up environment variables
 ```bash
+# backend
+cd ../backend
 cp .env.example .env
+
+# frontend
+cd ../frontend
+cp .env.example .env.local
 ```
 
-Edit `.env` and add your API key:
-```
-VITE_ANTHROPIC_API_KEY=sk-ant-xxxxx
-```
-
-### 4. Start development server
+### 4. Start development servers
 ```bash
+# terminal 1
+cd backend
+npm run dev
+
+# terminal 2
+cd frontend
 npm run dev
 ```
 
 ### 5. Open in browser
-Navigate to `http://localhost:3000`
+Navigate to `http://localhost:5173`
 
 ## Build for Production
 
@@ -67,9 +76,8 @@ The production build will be in `frontend/dist/`
 - Try different browser (Chrome/Edge recommended)
 
 ### API errors
-- Verify API key is correct
-- Check API key has credits
-- Ensure environment variable is set correctly
+- If using Gemini, verify `GEMINI_API_KEY` is set in `backend/.env`
+- If using Ollama, ensure it’s running (`ollama serve`) and reachable at `OLLAMA_URL`
 
 ### Build errors
 - Delete `node_modules` and `package-lock.json`
